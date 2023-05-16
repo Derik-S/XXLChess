@@ -95,29 +95,36 @@ public class Board {
     }
 
 
-    public void movePiece(int x1, int y1, int x2, int y2) {
-        if (board[y2][x2] == null) {
-            board[y2][x2] = board[y1][x1];
+	public void movePiece(int x1, int y1, int x2, int y2) {
+		// Checking and Moving the Piece to an Empty Spot
+		if (board[y2][x2] == null) {
+			board[y2][x2] = board[y1][x1];
 			board[y2][x2].setX(x2);
 			board[y2][x2].setY(y2);
 			board[y1][x1] = null;
 			board[y2][x2].setMove(true);
 
-
-            if (board[y2][x2].getType() == Type.PAWN) {
-                if (board[y2][x2].getPieceColor() == true) {
-                    if (board[y2 + 1][x2] != null) {
-                        board[y2 + 1][x2] = null;
-                    }
-                    else {
-                        if (board[y2-1][x2] != null) {
-                            board[y2-1][x2] = null;
-                        }
-                    }
-                }
-            }
-        }
-    }
+			if (board[y2][x2].getType() == Type.PAWN) {
+				if (board[y2][x2].getPieceColor() == true) {
+					if (board[y2 + 1][x2] != null) {
+						board[y2 + 1][x2] = null;
+					}
+				} else {
+					if (board[y2 - 1][x2] != null) {
+						board[y2 - 1][x2] = null;
+					}
+				}
+			}
+		}
+		// Killing an Enemy and Moving the Piece to an Empty Spot
+		else {
+			board[y2][x2] = board[y1][x1];
+			board[y2][x2].setX(x2);
+			board[y2][x2].setY(y2);
+			board[y1][x1] = null;
+			board[y2][x2].setMove(true);
+		}
+	}
 
     public void pawnPromotion(int x2, int y2, boolean isWhite) {
         board[y2][x2] = null;

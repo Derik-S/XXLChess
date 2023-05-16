@@ -22,6 +22,36 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
+
+
+  if ((currentChosenTile == null && lastChosenPiece.getPieceColor() == currentPlayer && lastChosenPiece != null)) {
+	int[][] coords = lastChosenPiece.getMove(chessboard);
+	if (coords[clickedTileY][clickedTileX] == 1) {
+	  board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
+	  lastChosenPiece.movePiece(clickedTileX, clickedTileY);
+	}
+	
+	// Capturing a piece
+  } else if (currentChosenTile != null && currentPlayer && lastChosenPiece != null) {
+	int[][] coords = lastChosenPiece.getMove(chessboard);
+	initTiles(coords);
+	int[][] prevCoords = lastChosenPiece.getMove(chessboard);
+	if (currentChosenTile.getPieceColor() != currentPlayer && currentPlayer) {
+	  resetGridColor();
+	  if (prevCoords[clickedTileY][clickedTileX] == 2) {
+		board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
+		System.out.println(Arrays.deepToString(chessboard));
+		removePieces(currentChosenTile.getPieceColor(), currentChosenTile);
+		lastChosenPiece.movePiece(clickedTileX, clickedTileY);
+		currentChosenTile = lastChosenPiece;
+	  }
+	}
+  }
+  
+  lastChosenPiece = chessboard[clickedTileY][clickedTileX];
+  }
+
+
 public class Chess2D extends PApplet {
 	int screenNumber = 0; // Current screen number
 	Piece lastChosenPiece; // Last chosen piece

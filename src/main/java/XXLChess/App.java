@@ -50,6 +50,7 @@ public class App extends PApplet {
     protected Piece lastChosenPiece;
     protected Piece currentChosenTile;
     protected boolean currentPlayer = true;
+    protected boolean firstMove = true;
 
     protected ArrayList<Tile> greenTile;
     protected ArrayList<Tile> blueTile;
@@ -316,19 +317,46 @@ public class App extends PApplet {
       Piece[][] chessboard = board.getChessboard();
       currentChosenTile = chessboard[clickedTileY][clickedTileX];
 
-      if (currentChosenTile != null) {
-        if (currentChosenTile.getPieceColor() != currentPlayer && lastChosenPiece != null) {
-          int[][] coords = lastChosenPiece.getMove(chessboard);
-          if (coords[clickedTileY][clickedTileX] == 2) {
-            board.
-          }
+      if (firstMove) {
+        lastChosenPiece = chessboard[clickedTileY][clickedTileX];   
+        firstMove = false;
+      }
+
+      // Case 1: Both Piece and Tile are null
+      if(currentChosenTile == null && lastChosenPiece == null) {
+        firstMove = true;
+        return;
+      }
+
+      // Case 2: Tile is null and lastChosenPiece is not
+      if ((currentChosenTile == null && lastChosenPiece.getPieceColor() == currentPlayer && lastChosenPiece != null)) {
+        int[][] coords = lastChosenPiece.getMove(chessboard);
+        // Moves under the piece legally
+        if (coords[clickedTileY][clickedTileX] == 1) {
+          board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
+          lastChosenPiece.movePiece(clickedTileX, clickedTileY);
+        } 
+        else {
+          return;
+        }
+        
+        // Capturing a piece
+      } else if (currentChosenTile != null && currentPlayer && lastChosenPiece != null) {
+        int[][] coords = currentChosenTile.getMove(chessboard);
+        initTiles(coords);
+        if (currentChosenTile.getPieceColor() != currentPlayer && currentPlayer) {
+          resetGridColor();
+          board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
+          removePieces(currentChosenTile.getPieceColor(), currentChosenTile);
+          lastChosenPiece.movePiece(clickedTileX, clickedTileY);
+        }
+        else {
+          return;
         }
       }
-
       lastChosenPiece = chessboard[clickedTileY][clickedTileX];      
-
-
       }
+  
   
     /**
      * Draw all elements in the game by current frame. 

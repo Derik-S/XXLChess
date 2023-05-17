@@ -66,8 +66,8 @@ public class Board {
         // Checking and moving to an empty spot
         if (board[y2][x2] == null) {
             board[y2][x2] = board[y1][x1]; // Setting the piece to the new spot
-            board[y2][x2].setX(x2); // Setting the coordinates of the new piece
-            board[y2][x2].setY(y2); // Setting the coordinate of the new piece spot
+            board[y2][x2].setX(x2 * 48); // Setting the coordinates of the new piece
+            board[y2][x2].setY(y2 * 48); // Setting the coordinate of the new piece spot
             board[y1][x1] = null; // Making the old spot nothing
             board[y2][x2].setMove(true);
         }
@@ -79,8 +79,8 @@ public class Board {
                 p1.addToPile(board[x2][y2]);
             }
 			board[y2][x2] = board[y1][x1];
-			board[y2][x2].setX(x2);
-			board[y2][x2].setY(y2);
+			board[y2][x2].setX(x2 * 48);
+			board[y2][x2].setY(y2 * 48);
 			board[y1][x1] = null;
 			board[y2][x2].setMove(true);
         }
@@ -99,8 +99,8 @@ public class Board {
 		// Checking and Moving the Piece to an Empty Spot
 		if (board[y2][x2] == null) {
 			board[y2][x2] = board[y1][x1];
-			board[y2][x2].setX(x2);
-			board[y2][x2].setY(y2);
+			board[y2][x2].setX(x2 * 48);
+			board[y2][x2].setY(y2 * 48);
 			board[y1][x1] = null;
 			board[y2][x2].setMove(true);
 
@@ -119,8 +119,8 @@ public class Board {
 		// Killing an Enemy and Moving the Piece to an Empty Spot
 		else {
 			board[y2][x2] = board[y1][x1];
-			board[y2][x2].setX(x2);
-			board[y2][x2].setY(y2);
+			board[y2][x2].setX(x2 * 48);
+			board[y2][x2].setY(y2 * 48);
 			board[y1][x1] = null;
 			board[y2][x2].setMove(true);
 		}

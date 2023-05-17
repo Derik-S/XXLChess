@@ -62,7 +62,7 @@ public class App extends PApplet {
     protected ArrayList<Piece> blackPieces;
     protected ArrayList<Piece> whitePieces;
 
-    // relative file paths for all the Tiles
+    // relative file paths for all the images
     private static String whiteRookFileStr = "src/main/resources/XXLChess/w-rook.png";
     private static String blackRookFileStr = "src/main/resources/XXLChess/b-rook.png";
     private static String whiteKnightFileStr = "src/main/resources/XXLChess/w-knight.png";
@@ -296,7 +296,6 @@ public class App extends PApplet {
       }
       sc.close();
       board.setChessBoard();
-      board.getChessboard();
   } catch (FileNotFoundException e) {
       System.out.println("Could not find layout file.");
       System.exit(0);
@@ -317,46 +316,79 @@ public class App extends PApplet {
       Piece[][] chessboard = board.getChessboard();
       currentChosenTile = chessboard[clickedTileY][clickedTileX];
 
-      if (firstMove) {
-        lastChosenPiece = chessboard[clickedTileY][clickedTileX];   
-        firstMove = false;
-      }
+        if(currentChosenTile != null) {
+          if (currentChosenTile.getPieceColor() != currentPlayer && lastChosenPiece == null) {
+            return;
+          }
+        }
 
-      // Case 1: Both Piece and Tile are null
-      if(currentChosenTile == null && lastChosenPiece == null) {
-        firstMove = true;
-        return;
-      }
-
-      // Case 2: Tile is null and lastChosenPiece is not
-      if ((currentChosenTile == null && lastChosenPiece.getPieceColor() == currentPlayer && lastChosenPiece != null)) {
-        int[][] coords = lastChosenPiece.getMove(chessboard);
-        // Moves under the piece legally
-        if (coords[clickedTileY][clickedTileX] == 1) {
-          board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
-          lastChosenPiece.movePiece(clickedTileX, clickedTileY);
-        } 
-        else {
+        // Case 1: Both lastChosenPiece and currentChosenTile are null
+        if(currentChosenTile == null && lastChosenPiece == null) {
+          // System.out.println("Case 1: Both lastChosenPiece and currentChosenTile are null");
+          // System.out.println("currentChosenTile: " + currentChosenTile);
+          // System.out.println("lastChosenPiece" + lastChosenPiece);
+          // System.out.println();
           return;
         }
-        
-        // Capturing a piece
-      } else if (currentChosenTile != null && currentPlayer && lastChosenPiece != null) {
+
+        // Case 2: lastChosenPiece is null and currentChosenTile is not
+        if (currentChosenTile != null && lastChosenPiece == null) {
+          // System.out.println("Case 2: lastChosenPiece is null and currentChosenTile is not");
+          // System.out.println("currentChosenTile: " + currentChosenTile);
+          // System.out.println("lastChosenPiece" + lastChosenPiece);
+          // System.out.println();
+          resetGridColor();
+          int[][] coords = currentChosenTile.getMove(chessboard);
+          initTiles(coords);
+          lastChosenPiece = currentChosenTile;
+          return;
+        }
+
+        // Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)
+        if(currentChosenTile == null && lastChosenPiece != null) {
+          // System.out.println("Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)");
+          // System.out.println("currentChosenTile: " + currentChosenTile);
+          // System.out.println("lastChosenPiece" + lastChosenPiece);
+          // System.out.println();
+          int[][] coords = lastChosenPiece.getMove(chessboard);
+          initTiles(coords);
+          // Moves the piece legally
+          if (coords[clickedTileY][clickedTileX] == 1) {
+            resetGridColor();
+            board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
+            lastChosenPiece.movePiece(clickedTileX, clickedTileY);
+            lastChosenPiece = null;
+            // computer.makeRandomMove(blackPieces, chessboard);
+          }
+          else {
+            resetGridColor();
+          }
+          return;
+        }
+
+      // Case 4: Both currentChosenTile and lastChosenPiece are not null (In this case, a piece capture)
+      if (currentChosenTile != null && lastChosenPiece != null) {
+        // System.out.println("Case 4: Both currentChosenTile and lastChosenPiece are not null (In this case, a piece capture)");
+        // System.out.println("currentChosenTile: " + currentChosenTile);
+        // System.out.println("lastChosenPiece" + lastChosenPiece);
+        // System.out.println();
         int[][] coords = currentChosenTile.getMove(chessboard);
         initTiles(coords);
-        if (currentChosenTile.getPieceColor() != currentPlayer && currentPlayer) {
+        if (currentChosenTile.getPieceColor() != lastChosenPiece.getPieceColor()) {
           resetGridColor();
           board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
           removePieces(currentChosenTile.getPieceColor(), currentChosenTile);
           lastChosenPiece.movePiece(clickedTileX, clickedTileY);
-        }
-        else {
-          return;
+          lastChosenPiece = null;
+          // computer.makeRandomMove(blackPieces, chessboard);
+
         }
       }
-      lastChosenPiece = chessboard[clickedTileY][clickedTileX];      
-      }
-  
+
+      System.out.println(currentChosenTile);
+      System.out.println(lastChosenPiece);
+    }
+
   
     /**
      * Draw all elements in the game by current frame. 

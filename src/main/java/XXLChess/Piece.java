@@ -13,6 +13,7 @@ public abstract class Piece {
     public Type piece;
     protected int color;
     protected boolean isMoved = false;
+    protected int speed = 2;
 
 
     public Piece(int x, int y, boolean isWhite, Type piece) {
@@ -55,6 +56,9 @@ public abstract class Piece {
     }
 
     public void setX(int x) {
+        if (x < 48) {
+            System.out.println("you've been usec");
+        }
         this.x = x;
     }
 
@@ -106,24 +110,18 @@ public abstract class Piece {
         int desiredX = this.x + resultX;
         int desiredY = this.y + resultY;
     
-        int speed = 1; // Adjust the speed value as needed
-        // ERROR, when speed is over than 1, the code breaks
-    
-        while (this.x != desiredX || this.y != desiredY) {
-            if (this.x < desiredX) {
-                this.x += speed;
-            }
-            else if (this.x > desiredX) {
-                this.x -= speed;
-            }
-    
-            if (this.y < desiredY) {
-                this.y += speed;
-            }
-            else if (this.y > desiredY) {
-                this.y -= speed;
-            }
-        }
-    }    
+        int speed = 1;
 
+        if (this.x < desiredX) {
+            this.x += speed;
+          } else if (this.x > desiredX) {
+            this.x -= speed;
+          }
+        
+          if (this.y < desiredY) {
+            this.y += speed;
+          } else if (this.y > desiredY) {
+            this.y -= speed;
+          }
+    }
 }

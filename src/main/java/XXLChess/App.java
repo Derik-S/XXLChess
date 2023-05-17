@@ -43,9 +43,15 @@ public class App extends PApplet {
     protected int max_movement_time;
     protected String player_colour;
     protected double piece_movement_speed;
+    protected int playerSeconds;
+    protected int cpuSeconds;
+    protected int playerIncrements;
+    protected int cpuIncrements;
 
     protected Board board;
     protected Tile tile;
+    protected Clock playerClock;
+    protected Clock cpuClock;
 
     protected Piece lastChosenPiece;
     protected Piece currentChosenTile;
@@ -97,6 +103,13 @@ public class App extends PApplet {
       this.piece_movement_speed = this.conf.getDouble("piece_movement_speed");
       this.max_movement_time = this.conf.getInt("max_movement_time");
 
+      this.playerSeconds = this.player.getInt("seconds");
+      this.cpuSeconds = this.cpu.getInt("seconds");
+
+      this.playerIncrements = this.player.getInt("increment");
+      this.cpuIncrements = this.cpu.getInt("increment");
+
+
 
       this.whitePieces = new ArrayList<Piece>();
       this.blackPieces = new ArrayList<Piece>();
@@ -124,12 +137,15 @@ public class App extends PApplet {
       frameRate(FPS);
   
       String layout = "level1.txt";
+      textSize(20);
   
       // Load images during setup
       try {
         Scanner sc = new Scanner(new File(layout));
         int y = 0;
         board = new Board();
+        playerClock = new Clock(this.playerSeconds, this);
+        cpuClock = new Clock(this.cpuSeconds, this);
         while (sc.hasNextLine()) {
           String line = sc.nextLine();
   
@@ -359,6 +375,7 @@ public class App extends PApplet {
             lastChosenPiece.movePiece(clickedTileX, clickedTileY);
             lastChosenPiece = null;
             makeRandomMove(blackPieces);
+            playerClock.increment(this.playerIncrements);
           }
           else {
             resetGridColor();
@@ -380,13 +397,14 @@ public class App extends PApplet {
           removePieces(currentChosenTile.getPieceColor(), currentChosenTile);
           lastChosenPiece.movePiece(clickedTileX, clickedTileY);
           lastChosenPiece = null;
-          // computer.makeRandomMove(blackPieces, chessboard);
+          playerClock.increment(this.playerIncrements);
+          makeRandomMove(blackPieces);
 
         }
       }
 
-      System.out.println(currentChosenTile);
-      System.out.println(lastChosenPiece);
+      // System.out.println(currentChosenTile);
+      // System.out.println(lastChosenPiece);
     }
 
   
@@ -398,6 +416,12 @@ public class App extends PApplet {
       initBoard();
       drawTiles();
       drawPieces();
+
+      playerClock.update();
+      cpuClock.update();
+
+      playerClock.display(680, 600);
+      cpuClock.display(680, 40);
 
     }
 
@@ -496,8 +520,6 @@ public class App extends PApplet {
         for (int i = 0; i < validMoves.length; i++) {
             for (int j = 0; j < validMoves[i].length; j++) {
                 if (validMoves[i][j] == 1 || validMoves[i][j] == 2) {
-                  System.out.println("Column:" + i);
-                  System.out.println("Row:" + j);
                   legalMoveIndices.add(i * 14 + j);
                 }
             }
@@ -512,6 +534,7 @@ public class App extends PApplet {
 
             board.movePiece(selectedPiece.getX() / CELLSIZE, selectedPiece.getY() / CELLSIZE, moveCol, moveRow);
             selectedPiece.movePiece(moveRow, moveCol);
+            cpuClock.increment(this.cpuIncrements);
             
             break;
 

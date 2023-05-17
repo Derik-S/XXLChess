@@ -11,11 +11,11 @@ public class Computer {
         this.board = board;
     }
 
-    public boolean isWhite() {
-        return isWhite;
-    }
+    // public boolean isWhite() {
+    //     return isWhite;
+    // }
 
-    public void makeRandomMove(ArrayList<Piece> pieces, Piece[][] chessboard2) {
+    public void makeRandomMove(ArrayList<Piece> pieces) {
         // Get a random piece from the pieces ArrayList
         Random random = new Random();
 

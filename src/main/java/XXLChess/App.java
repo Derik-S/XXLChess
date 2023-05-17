@@ -358,7 +358,7 @@ public class App extends PApplet {
             board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
             lastChosenPiece.movePiece(clickedTileX, clickedTileY);
             lastChosenPiece = null;
-            // computer.makeRandomMove(blackPieces, chessboard);
+            makeRandomMove(blackPieces);
           }
           else {
             resetGridColor();
@@ -476,6 +476,50 @@ public class App extends PApplet {
     this.blueTile.clear();
     this.lightredTile.clear();
   }
+
+  public void makeRandomMove(ArrayList<Piece> pieces) {
+    // Get a random piece from the pieces ArrayList
+    Random random = new Random();
+
+    while (true) {
+        int randomPieceIndex = random.nextInt(pieces.size());
+        Piece selectedPiece = pieces.get(randomPieceIndex);
+
+        // Get current board
+        Piece[][] chessboard = board.getChessboard();
+
+        // Get the valid moves for the selected piece
+        int[][] validMoves = selectedPiece.getMove(chessboard);
+
+        //Find the indices of all the legal moves (1s and 2s) in the 'validMoves' array
+        ArrayList<Integer> legalMoveIndices = new ArrayList<>();
+        for (int i = 0; i < validMoves.length; i++) {
+            for (int j = 0; j < validMoves[i].length; j++) {
+                if (validMoves[i][j] == 1 || validMoves[i][j] == 2) {
+                  System.out.println("Column:" + i);
+                  System.out.println("Row:" + j);
+                  legalMoveIndices.add(i * 14 + j);
+                }
+            }
+        }
+
+        if(!legalMoveIndices.isEmpty()) {
+            int randomMoveIndex = random.nextInt(legalMoveIndices.size());
+            int selectedMoveIndex = legalMoveIndices.get(randomMoveIndex);
+
+            int moveRow = selectedMoveIndex / 14;
+            int moveCol = selectedMoveIndex % 14;
+
+            board.movePiece(selectedPiece.getX() / CELLSIZE, selectedPiece.getY() / CELLSIZE, moveCol, moveRow);
+            selectedPiece.movePiece(moveRow, moveCol);
+            
+            break;
+
+        } else {
+            pieces.remove(randomPieceIndex);
+        }
+    }
+}
 
 
     public static void main(String[] args) {

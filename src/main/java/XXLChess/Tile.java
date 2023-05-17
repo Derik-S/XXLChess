@@ -11,6 +11,7 @@ public class Tile {
     protected int[] greenFill = { 112, 136, 83}; // Fill
     protected int[] blueFill = {0, 0, 255};
     protected int[] redFill = {255, 0, 0};
+    protected int[] yellowFill = {255, 0, 255};
     protected float alphaFloat = 128; // sets the transparency of the tile
 
 
@@ -33,6 +34,11 @@ public class Tile {
         }
         else if (this.colour == "light red") {
             app.fill(redFill[0], redFill[1], redFill[2], alphaFloat);
+            app.noStroke();
+            app.rect(this.x, this.y, 48, 48);
+        }
+        else if (this.colour == "yellow") {
+            app.fill(yellowFill[0], yellowFill[1], yellowFill[2]);
             app.noStroke();
             app.rect(this.x, this.y, 48, 48);
         }

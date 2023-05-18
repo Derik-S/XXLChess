@@ -56,9 +56,6 @@ public abstract class Piece {
     }
 
     public void setX(int x) {
-        if (x < 48) {
-            System.out.println("you've been usec");
-        }
         this.x = x;
     }
 

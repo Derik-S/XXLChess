@@ -57,6 +57,8 @@ public class App extends PApplet {
     protected Piece currentChosenTile;
     protected boolean currentPlayer = true;
     protected boolean firstMove = true;
+    protected boolean playerFirst = true;
+    protected boolean cpuFirst = true;
 
     protected ArrayList<Tile> greenTile;
     protected ArrayList<Tile> blueTile;
@@ -312,6 +314,7 @@ public class App extends PApplet {
       }
       sc.close();
       board.setChessBoard();
+      clockTurn(false);
   } catch (FileNotFoundException e) {
       System.out.println("Could not find layout file.");
       System.exit(0);
@@ -334,7 +337,7 @@ public class App extends PApplet {
 
         if(currentChosenTile != null) {
           if (currentChosenTile.getPieceColor() != currentPlayer && lastChosenPiece == null) {
-            // return;
+            return;
           }
         }
 
@@ -344,7 +347,7 @@ public class App extends PApplet {
           // System.out.println("currentChosenTile: " + currentChosenTile);
           // System.out.println("lastChosenPiece" + lastChosenPiece);
           // System.out.println();
-          // return;
+          return;
         }
 
         // Case 2: lastChosenPiece is null and currentChosenTile is not
@@ -357,33 +360,36 @@ public class App extends PApplet {
           int[][] coords = currentChosenTile.getMove(chessboard);
           initTiles(coords);
           lastChosenPiece = currentChosenTile;
-          // return;
+          return;
         }
 
         // Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)
-        if(currentChosenTile == null && lastChosenPiece != null) {
+        if (currentChosenTile == null && lastChosenPiece != null) {
           // System.out.println("Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)");
           // System.out.println("currentChosenTile: " + currentChosenTile);
           // System.out.println("lastChosenPiece" + lastChosenPiece);
           // System.out.println();
-          int[][] coords = lastChosenPiece.getMove(chessboard);
-          initTiles(coords);
-          // Moves the piece legally
-          if (coords[clickedTileY][clickedTileX] == 1) {
-            resetGridColor();
-            board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
-            initlastTiles();
-            lastTiles(lastChosenPiece.getX(), lastChosenPiece.getY(), clickedTileX, clickedTileY);
-            lastChosenPiece.movePiece(clickedTileX, clickedTileY);
-            lastChosenPiece = null;
-            makeRandomMove(blackPieces);
-            playerClock.increment(this.playerIncrements);
-          }
-          else {
-            resetGridColor();
+
+          if (lastChosenPiece.getMove(chessboard) != null) { // Add this null check
+              int[][] coords = lastChosenPiece.getMove(chessboard);
+              initTiles(coords);
+              // Moves the piece legally
+              if (coords[clickedTileY][clickedTileX] == 1) {
+                  resetGridColor();
+                  this.yellowTile.clear();
+                  initlastTiles(lastChosenPiece.getX(), lastChosenPiece.getY(), clickedTileX, clickedTileY);
+                  board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
+                  lastChosenPiece.movePiece(clickedTileX, clickedTileY);
+                  makeRandomMove(blackPieces);
+                  lastChosenPiece = null;
+                  clockTurn(false);
+              } else {
+                  resetGridColor();
+              }
           }
           // return;
         }
+
 
       // Case 4: Both currentChosenTile and lastChosenPiece are not null (In this case, a piece capture)
       if (currentChosenTile != null && lastChosenPiece != null) {
@@ -391,48 +397,20 @@ public class App extends PApplet {
         // System.out.println("currentChosenTile: " + currentChosenTile);
         // System.out.println("lastChosenPiece" + lastChosenPiece);
         // System.out.println();
-        // Captures the piece
+        int[][] coords = currentChosenTile.getMove(chessboard);
+        initTiles(coords);
         if (currentChosenTile.getPieceColor() != lastChosenPiece.getPieceColor()) {
           resetGridColor();
+          this.yellowTile.clear();
+          initlastTiles(lastChosenPiece.getX(), lastChosenPiece.getY(), clickedTileX, clickedTileY);
           board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);
           removePieces(currentChosenTile.getPieceColor(), currentChosenTile);
           lastChosenPiece.movePiece(clickedTileX, clickedTileY);
-          lastTiles(lastChosenPiece.getX(), lastChosenPiece.getY(), clickedTileX, clickedTileY);
-          initlastTiles();
           lastChosenPiece = null;
-          playerClock.increment(this.playerIncrements);
           makeRandomMove(blackPieces);
-        }
-        else {
-          resetGridColor();
-          int[][] coords = currentChosenTile.getMove(chessboard);
-          initTiles(coords);
-          lastChosenPiece = currentChosenTile;
-          // return;
+          clockTurn(false);
         }
       }
-
-      // System.out.println(currentChosenTile);
-      // System.out.println(lastChosenPiece);
-
-    //   int kingX = (BoardUtils.getKingCoords(board.getChessboard(), currentPlayer)[0] / CELLSIZE);
-    //   int kingY = (BoardUtils.getKingCoords(board.getChessboard(), currentPlayer)[1] / CELLSIZE);
-
-    // if (BoardUtils.checkforCheck(board.getChessboard(), currentPlayer, kingX, kingY)) {
-
-    // // Colors the rectangles that you have been checked
-    // // rects[kingX][kingY].setFillR(255);
-    // // rects[kingX][kingY].setFillG(120);
-    // // rects[kingX][kingY].setFillB(120);
-    // System.out.println("ur almost fooked lol");
-
-    // if (BoardUtils.checkforCheckMate(board, currentPlayer,
-    //     BoardUtils.getKingCoords(board.getChessboard(), currentPlayer)[0],
-    //     BoardUtils.getKingCoords(board.getChessboard(), currentPlayer)[1])) {
-    //   System.out.println("ur fooked lol");
-    // }
-
-    // }
     }
 
   
@@ -442,14 +420,15 @@ public class App extends PApplet {
     public void draw() {
 
       initBoard();
+      drawlastTiles();
       drawTiles();
       drawPieces();
 
-      playerClock.update();
-      cpuClock.update();
-
       playerClock.display(680, 600);
       cpuClock.display(680, 40);
+
+      playerClock.update();
+      cpuClock.update();
 
     }
 
@@ -491,17 +470,11 @@ public class App extends PApplet {
       }
   }
 
-  public void lastTiles(int x1, int y1, int x2, int y2) {
-      Tile yellowTile = new Tile(x1 * CELLSIZE + 1, y2 * CELLSIZE, "yellow");
-      Tile yellowTile2 = new Tile(x1 * CELLSIZE + 1, y2 * CELLSIZE, "yellow");
-      this.yellowTile.add(yellowTile);
-      this.yellowTile.add(yellowTile2);
-  }
-
-  public void initlastTiles() {
-    for (Tile yellowTile : this.yellowTile) {
-      yellowTile.draw(this);
-    }
+  public void initlastTiles(int x1, int y1, int x2, int y2) {
+    Tile yellowOne = new Tile(x1 + 1, y1 + 1, "yellow");
+    Tile yellowTwo = new Tile(x2 * CELLSIZE + 1, y2  * CELLSIZE + 1, "yellow");
+    this.yellowTile.add(yellowOne);
+    this.yellowTile.add(yellowTwo);
   }
 
   public void drawTiles() {
@@ -513,6 +486,12 @@ public class App extends PApplet {
     }
     for (Tile lightredTile : this.lightredTile) {
       lightredTile.draw(this);
+    }
+  }
+
+  public void drawlastTiles() {
+    for(Tile yellowTile : this.yellowTile) {
+      yellowTile.draw(this);
     }
   }
 
@@ -556,40 +535,28 @@ public class App extends PApplet {
         int[][] validMoves = selectedPiece.getMove(chessboard);
 
         //Find the indices of all the legal moves (1s and 2s) in the 'validMoves' array
-        ArrayList<Integer> legalMoveIndices = new ArrayList<>();
+        ArrayList<int[]> legalMoveIndices = new ArrayList<>();
         for (int i = 0; i < validMoves.length; i++) {
             for (int j = 0; j < validMoves[i].length; j++) {
                 if (validMoves[i][j] == 1 || validMoves[i][j] == 2) {
-                  legalMoveIndices.add(i * 14 + j);
+                  int[] coordinates = {i , j};
+                  legalMoveIndices.add(coordinates);
                 }
             }
         }
 
         if(!legalMoveIndices.isEmpty()) {
             int randomMoveIndex = random.nextInt(legalMoveIndices.size());
-            int selectedMoveIndex = legalMoveIndices.get(randomMoveIndex);
+            int[] selectedMoveIndex = legalMoveIndices.get(randomMoveIndex);
 
-            int moveRow = selectedMoveIndex / 14;
-            int moveCol = selectedMoveIndex % 14;
-
+            int moveRow = selectedMoveIndex[0];
+            int moveCol = selectedMoveIndex[1];
+            cpuClock.start();
+            this.yellowTile.clear();
+            initlastTiles(selectedPiece.getX(), selectedPiece.getY(), moveCol, moveRow);
             board.movePiece(selectedPiece.getX() / CELLSIZE, selectedPiece.getY() / CELLSIZE, moveCol, moveRow);
-            selectedPiece.movePiece(moveRow, moveCol);
-            cpuClock.increment(this.cpuIncrements);
-
-            int kingX = (BoardUtils.getKingCoords(board.getChessboard(), !currentPlayer)[0] / CELLSIZE);
-            int kingY = (BoardUtils.getKingCoords(board.getChessboard(), !currentPlayer)[1] / CELLSIZE);
-
-            boolean checkTest = BoardUtils.checkforCheck(this.whitePieces, board, kingX, kingY);
-            boolean checkMateTest = BoardUtils.checkforCheckMate(this.whitePieces, board, kingX, kingY);
-
-            if (checkTest) {
-              System.out.println("Check!" + "\n");
-              if(checkMateTest) {
-                System.out.println("Checkmate!" + "\n");
-              }
-            }
-
-            
+            selectedPiece.movePiece(moveCol, moveRow);
+            clockTurn(true);
             break;
 
         } else {
@@ -598,9 +565,23 @@ public class App extends PApplet {
     }
 }
 
+// If turn is true, then it's computer's turn, else it's player's turn
+    public void clockTurn(boolean turn) {
+      if (turn) {
+        playerClock.stop();
+        cpuClock.increment(this.cpuIncrements, false);
+        playerFirst = false;
+      }
+      if (!turn) {
+        cpuClock.stop();
+        playerClock.start();
+        playerClock.increment(this.playerIncrements, playerFirst);
+      }
+    }
+
 
     public static void main(String[] args) {
         PApplet.main("XXLChess.App");
     }
 
-}
+  }

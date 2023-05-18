@@ -6,23 +6,38 @@ import java.util.concurrent.TimeUnit;
 public class Clock {
     private int totalTime;
     private PApplet parent;
+    private boolean isStopped;
 
     public Clock(int totalTime, PApplet parent) {
         this.totalTime = totalTime;
         this.parent = parent;
+        this.isStopped = false;
     }
 
     public void update() {
-        if (parent.frameCount % 60 == 0) {
+        if (!isStopped && parent.frameCount % 60 == 0) {
             totalTime--;
         }
     }
 
-    public void increment(int amount) {
-        totalTime += amount;
-        if (totalTime < 0) {
-            totalTime = 0;
+    public void increment(int amount, boolean first) {
+        if (first) {
+            return;
         }
+        else if (totalTime < 0) {
+            totalTime = 0;
+        } 
+        else {
+            totalTime += amount;
+        }
+    }
+
+    public void stop() {
+        isStopped = true;
+    }
+
+    public void start() {
+        isStopped = false;
     }
 
     public void display(float x, float y) {

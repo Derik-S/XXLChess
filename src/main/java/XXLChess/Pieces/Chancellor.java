@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class Chancellor extends Piece {
     public Chancellor(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.CHANCELLOR);
+        super(x, y, isWhite, Type.CHANCELLOR, 8.5);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

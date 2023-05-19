@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class Amazon extends Piece {
     public Amazon(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.AMAZON);
+        super(x, y, isWhite, Type.AMAZON, 12);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

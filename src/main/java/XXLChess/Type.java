@@ -1,5 +1,8 @@
 package XXLChess;
 
+/**
+ * All piece types
+ */
 public enum Type {
     PAWN,
     ROOK,
@@ -11,5 +14,6 @@ public enum Type {
     AMAZON,
     KING,
     CHANCELLOR,
-    QUEEN;
+    QUEEN,
+    TEST;
 }

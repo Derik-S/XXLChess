@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Rook.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">XXLChess</a> &gt; <a href="index.source.html" class="el_package">XXLChess.Pieces</a> &gt; <span class="el_source">Rook.java</span></div><h1>Rook.java</h1><pre class="source lang-java linenums">package XXLChess.Pieces;
+
+import XXLChess.*;
+
+public class Rook extends Piece {
+    public Rook(int x, int y, boolean isWhite) {
+<span class="fc" id="L7">        super(x, y, isWhite, Type.ROOK, 5.25);</span>
+<span class="fc" id="L8">    }</span>
+
+    public int[][] getMove(Piece[][] boardStatus) {
+<span class="nc" id="L11">		int[][] directions = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };</span>
+<span class="nc" id="L12">		int[][] toReturn = new int[boardStatus.length][boardStatus[0].length];</span>
+
+<span class="nc bnc" id="L14" title="All 2 branches missed.">		for (int[] direction : directions) {</span>
+<span class="nc" id="L15">			int dx = direction[0];</span>
+<span class="nc" id="L16">			int dy = direction[1];</span>
+			
+<span class="nc" id="L18">            int locationX = (int) Math.round(super.getX() / 48);</span>
+<span class="nc" id="L19">            int locationY = (int) Math.round(super.getY() / 48);</span>
+<span class="nc" id="L20">            toReturn[locationY][locationX] = 3;</span>
+
+<span class="nc" id="L22">            int x = locationX + dx;</span>
+<span class="nc" id="L23">            int y = locationY + dy;</span>
+
+<span class="nc bnc" id="L25" title="All 2 branches missed.">			while (BoardUtils.isCoord(x, y)) {</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">				if (boardStatus[y][x] == null) {</span>
+<span class="nc" id="L27">					toReturn[y][x] = 1;</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">				} else if (boardStatus[y][x].getPieceColor() != super.getPieceColor()) {</span>
+<span class="nc" id="L29">					toReturn[y][x] = 2;</span>
+<span class="nc" id="L30">					break;</span>
+				} else {
+					break;
+				}
+
+<span class="nc" id="L35">				x += dx;</span>
+<span class="nc" id="L36">				y += dy;</span>
+			}
+		}
+
+<span class="nc" id="L40">		return toReturn;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

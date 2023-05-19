@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class Pawn extends Piece {
     public Pawn(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.PAWN);
+        super(x, y, isWhite, Type.PAWN, 1);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

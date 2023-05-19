@@ -55,10 +55,14 @@ public class App extends PApplet {
 
     protected Piece lastChosenPiece;
     protected Piece currentChosenTile;
+
     protected boolean currentPlayer = true;
+
+    protected boolean inCheckMate;
+    protected boolean inCheck;
+
     protected boolean firstMove = true;
     protected boolean playerFirst = true;
-    protected boolean cpuFirst = true;
 
     protected ArrayList<Tile> greenTile;
     protected ArrayList<Tile> blueTile;
@@ -94,6 +98,9 @@ public class App extends PApplet {
     private static String whiteChancellorFileStr = "src/main/resources/XXLChess/w-chancellor.png";
     private static String blackChancellorFileStr = "src/main/resources/XXLChess/b-chancellor.png";
 
+    /**
+     * Sets up all the configuration
+     */
     public App() {
       this.configPath = "config.json";
       this.conf = loadJSONObject(new File(this.configPath));
@@ -322,6 +329,21 @@ public class App extends PApplet {
       
   }
 
+  /**
+   * Receive key pressed signal from the keyboard.
+  */
+  public void keyPressed(){
+    if (this.keyCode == 69) {
+      textSize(10);
+      this.text("You resigned", 680, 400);
+      this.textSize(1);
+    }
+
+  }
+
+  /**
+   * Sets up when a mouse is clicked
+   */
   @Override
   public void mouseClicked(MouseEvent e) {
       int mouseX = e.getX();
@@ -335,27 +357,26 @@ public class App extends PApplet {
       Piece[][] chessboard = board.getChessboard();
       currentChosenTile = chessboard[clickedTileY][clickedTileX];
 
+      int kingX = (BoardUtils.getKingCoords(this.whitePieces, currentPlayer)[0] / CELLSIZE);
+      int kingY = (BoardUtils.getKingCoords(this.whitePieces, currentPlayer)[1] / CELLSIZE);
+
+
+        //Edge Case not to pick other player's colour
         if(currentChosenTile != null) {
           if (currentChosenTile.getPieceColor() != currentPlayer && lastChosenPiece == null) {
+            currentChosenTile = null;
+            lastChosenPiece = null;
             return;
           }
         }
 
         // Case 1: Both lastChosenPiece and currentChosenTile are null
         if(currentChosenTile == null && lastChosenPiece == null) {
-          // System.out.println("Case 1: Both lastChosenPiece and currentChosenTile are null");
-          // System.out.println("currentChosenTile: " + currentChosenTile);
-          // System.out.println("lastChosenPiece" + lastChosenPiece);
-          // System.out.println();
           return;
         }
 
         // Case 2: lastChosenPiece is null and currentChosenTile is not
         if (currentChosenTile != null && lastChosenPiece == null) {
-          // System.out.println("Case 2: lastChosenPiece is null and currentChosenTile is not");
-          // System.out.println("currentChosenTile: " + currentChosenTile);
-          // System.out.println("lastChosenPiece" + lastChosenPiece);
-          // System.out.println();
           resetGridColor();
           int[][] coords = currentChosenTile.getMove(chessboard);
           initTiles(coords);
@@ -365,10 +386,6 @@ public class App extends PApplet {
 
         // Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)
         if (currentChosenTile == null && lastChosenPiece != null) {
-          // System.out.println("Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)");
-          // System.out.println("currentChosenTile: " + currentChosenTile);
-          // System.out.println("lastChosenPiece" + lastChosenPiece);
-          // System.out.println();
 
           if (lastChosenPiece.getMove(chessboard) != null) { // Add this null check
               int[][] coords = lastChosenPiece.getMove(chessboard);
@@ -383,20 +400,17 @@ public class App extends PApplet {
                   makeRandomMove(blackPieces);
                   lastChosenPiece = null;
                   clockTurn(false);
+                  inCheck = BoardUtils.checkforCheck(this.blackPieces, chessboard, kingX, kingY);
               } else {
                   resetGridColor();
               }
           }
-          // return;
         }
 
 
       // Case 4: Both currentChosenTile and lastChosenPiece are not null (In this case, a piece capture)
       if (currentChosenTile != null && lastChosenPiece != null) {
-        // System.out.println("Case 4: Both currentChosenTile and lastChosenPiece are not null (In this case, a piece capture)");
-        // System.out.println("currentChosenTile: " + currentChosenTile);
-        // System.out.println("lastChosenPiece" + lastChosenPiece);
-        // System.out.println();
+
         int[][] coords = currentChosenTile.getMove(chessboard);
         initTiles(coords);
         if (currentChosenTile.getPieceColor() != lastChosenPiece.getPieceColor()) {
@@ -409,6 +423,7 @@ public class App extends PApplet {
           lastChosenPiece = null;
           makeRandomMove(blackPieces);
           clockTurn(false);
+          inCheck = BoardUtils.checkforCheck(this.blackPieces, chessboard, kingX, kingY);
         }
       }
     }
@@ -430,11 +445,16 @@ public class App extends PApplet {
       playerClock.update();
       cpuClock.update();
 
+      keyPressed();
+
     }
 
 	
 	// Add any additional methods or attributes you want. Please put classes in different files.
 
+  /**
+   * Initialises the chessboard
+   */
   public void initBoard() {
     // draw the cells of the chessboard
     for (int i = 0; i < 14; i++) {
@@ -452,6 +472,14 @@ public class App extends PApplet {
     }
   }
 
+  /**
+   * Initialises the tiles
+   * @param coords The coords is recieved from the piece's legal moves and sets it according to the 2D array
+   * of it.
+   * 1's are null space moves
+   * 2's are capture moves
+   * 3 is the current Piece's location
+   */
   public void initTiles(int[][] coords) {
       for (int i = 0; i < coords.length; i++) {
           for (int j = 0; j < coords[i].length; j++) {
@@ -470,6 +498,13 @@ public class App extends PApplet {
       }
   }
 
+  /**
+   * Initialises the yellow tiles
+   * @param x1 Grabs x coordinate of the original spot's piece
+   * @param y1 Grabs y coordinate of the original spot's piece
+   * @param x2 Grabs the x coordinate of the new spot's piece
+   * @param y2 Grabs the y coordinate of the new spot's piece
+   */
   public void initlastTiles(int x1, int y1, int x2, int y2) {
     Tile yellowOne = new Tile(x1 + 1, y1 + 1, "yellow");
     Tile yellowTwo = new Tile(x2 * CELLSIZE + 1, y2  * CELLSIZE + 1, "yellow");
@@ -477,6 +512,9 @@ public class App extends PApplet {
     this.yellowTile.add(yellowTwo);
   }
 
+  /**
+   * Draws the tiles
+   */
   public void drawTiles() {
     for (Tile greenTile : this.greenTile) {
       greenTile.draw(this);
@@ -489,12 +527,18 @@ public class App extends PApplet {
     }
   }
 
+  /**
+   * Draws the last tiles
+   */
   public void drawlastTiles() {
     for(Tile yellowTile : this.yellowTile) {
       yellowTile.draw(this);
     }
   }
 
+  /**
+   * Draws the pieces
+   */
   public void drawPieces() {
       //Draws the Tiles
       for (Piece blackPieces : this.blackPieces) {
@@ -505,6 +549,11 @@ public class App extends PApplet {
       }
   }
 
+  /**
+   * Removes the pieces
+   * @param color Is the colour of the piece type
+   * @param piece Selected piece type that is going to be removed
+   */
   public void removePieces(boolean color, Piece piece) {
     if (color == true) {
       this.whitePieces.remove(piece);
@@ -514,25 +563,52 @@ public class App extends PApplet {
     }
   }
 
+  /**
+   * Resets the tile colours
+   */
   public void resetGridColor() {
     this.greenTile.clear();
     this.blueTile.clear();
     this.lightredTile.clear();
   }
 
+  /**
+   * This is the chessAI in which it picks a random piece and moves it somewhere
+   * @param pieces Arraylist of the pieces needed to move
+   */
   public void makeRandomMove(ArrayList<Piece> pieces) {
     // Get a random piece from the pieces ArrayList
     Random random = new Random();
+
+    // Get current board
+    Piece[][] chessboard = board.getChessboard();
+
+    int kingX = (BoardUtils.getKingCoords(this.blackPieces, !currentPlayer)[0] / CELLSIZE);
+    int kingY = (BoardUtils.getKingCoords(this.blackPieces, !currentPlayer)[1] / CELLSIZE);
+
+    inCheck = BoardUtils.checkforCheck(this.whitePieces, chessboard, kingX, kingY);
+    // inCheckMate = BoardUtils.checkforCheckMate(this.whitePieces, chessboard, kingX, kingY);
+    
 
     while (true) {
         int randomPieceIndex = random.nextInt(pieces.size());
         Piece selectedPiece = pieces.get(randomPieceIndex);
 
-        // Get current board
-        Piece[][] chessboard = board.getChessboard();
+        // Resets the parameters after Player has chosen
+        cpuClock.start();
+        this.yellowTile.clear();
 
         // Get the valid moves for the selected piece
         int[][] validMoves = selectedPiece.getMove(chessboard);
+
+        if (inCheck) {
+          // Selected Piece in this case is the king
+          selectedPiece = chessboard[kingY][kingX];
+          int[][] kingCoords = selectedPiece.getMove(chessboard);
+          ArrayList<int[]> checkTiles = BoardUtils.getcheckTiles(kingCoords);
+          validMoves = BoardUtils.getCheckKingMovement(this.whitePieces, checkTiles, board, kingX, kingY);
+          System.out.println(Arrays.deepToString(validMoves));
+        }
 
         //Find the indices of all the legal moves (1s and 2s) in the 'validMoves' array
         ArrayList<int[]> legalMoveIndices = new ArrayList<>();
@@ -551,11 +627,17 @@ public class App extends PApplet {
 
             int moveRow = selectedMoveIndex[0];
             int moveCol = selectedMoveIndex[1];
-            cpuClock.start();
-            this.yellowTile.clear();
+
+            if(validMoves[moveRow][moveCol] == 2) {
+              Piece eliminatedPiece = chessboard[moveRow][moveCol];
+              removePieces(eliminatedPiece.getPieceColor(), eliminatedPiece);
+            }
+
             initlastTiles(selectedPiece.getX(), selectedPiece.getY(), moveCol, moveRow);
+
             board.movePiece(selectedPiece.getX() / CELLSIZE, selectedPiece.getY() / CELLSIZE, moveCol, moveRow);
             selectedPiece.movePiece(moveCol, moveRow);
+
             clockTurn(true);
             break;
 
@@ -565,7 +647,10 @@ public class App extends PApplet {
     }
 }
 
-// If turn is true, then it's computer's turn, else it's player's turn
+  /**
+   * Class method in which it sets the clock timer after a move is made
+   * @param turn To know which turn is which
+   */
     public void clockTurn(boolean turn) {
       if (turn) {
         playerClock.stop();
@@ -585,3 +670,4 @@ public class App extends PApplet {
     }
 
   }
+

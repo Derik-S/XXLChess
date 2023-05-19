@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class Camel extends Piece {
     public Camel(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.CAMEL);
+        super(x, y, isWhite, Type.CAMEL, 2);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

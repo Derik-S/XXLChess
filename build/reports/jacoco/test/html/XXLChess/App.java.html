@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">XXLChess</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+//import org.reflections.Reflections;
+//import org.reflections.scanners.Scanners;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.data.JSONObject;
+import processing.data.JSONArray;
+import processing.core.PFont;
+import processing.event.MouseEvent;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import XXLChess.Pieces.*;
+
+import java.lang.Math;
+
+import java.awt.Font;
+import java.io.*;
+import java.util.*;
+
+public class App extends PApplet {
+
+    public static final int SPRITESIZE = 480;
+    public static final int CELLSIZE = 48;
+    public static final int SIDEBAR = 120;
+    public static final int BOARD_WIDTH = 14;
+
+<span class="fc" id="L30">    public static int WIDTH = CELLSIZE*BOARD_WIDTH+SIDEBAR;</span>
+<span class="fc" id="L31">    public static int HEIGHT = BOARD_WIDTH*CELLSIZE;</span>
+
+    public static final int FPS = 60;
+
+    //Class Attributes
+    protected String configPath;
+    protected JSONObject conf;
+    protected JSONObject time_controls;
+    protected JSONObject player;
+    protected JSONObject cpu;
+    protected int seconds;
+    protected int increment;
+    protected int max_movement_time;
+    protected String player_colour;
+    protected double piece_movement_speed;
+    protected int playerSeconds;
+    protected int cpuSeconds;
+    protected int playerIncrements;
+    protected int cpuIncrements;
+
+    protected Board board;
+    protected Tile tile;
+    protected Clock playerClock;
+    protected Clock cpuClock;
+
+    protected Piece lastChosenPiece;
+    protected Piece currentChosenTile;
+
+<span class="fc" id="L59">    protected boolean currentPlayer = true;</span>
+
+    protected boolean inCheckMate;
+    protected boolean inCheck;
+
+<span class="fc" id="L64">    protected boolean firstMove = true;</span>
+<span class="fc" id="L65">    protected boolean playerFirst = true;</span>
+
+    protected ArrayList&lt;Tile&gt; greenTile;
+    protected ArrayList&lt;Tile&gt; blueTile;
+    protected ArrayList&lt;Tile&gt; lightredTile;
+    protected ArrayList&lt;Tile&gt; darkredTile;
+    protected ArrayList&lt;Tile&gt; yellowTile;
+
+
+    protected ArrayList&lt;Piece&gt; blackPieces;
+    protected ArrayList&lt;Piece&gt; whitePieces;
+
+    // relative file paths for all the images
+<span class="fc" id="L78">    private static String whiteRookFileStr = &quot;src/main/resources/XXLChess/w-rook.png&quot;;</span>
+<span class="fc" id="L79">    private static String blackRookFileStr = &quot;src/main/resources/XXLChess/b-rook.png&quot;;</span>
+<span class="fc" id="L80">    private static String whiteKnightFileStr = &quot;src/main/resources/XXLChess/w-knight.png&quot;;</span>
+<span class="fc" id="L81">    private static String blackKnightFileStr = &quot;src/main/resources/XXLChess/b-knight.png&quot;;</span>
+<span class="fc" id="L82">    private static String whiteBishopFileStr = &quot;src/main/resources/XXLChess/w-bishop.png&quot;;</span>
+<span class="fc" id="L83">    private static String blackBishopFileStr = &quot;src/main/resources/XXLChess/b-bishop.png&quot;;</span>
+<span class="fc" id="L84">    private static String whiteQueenFileStr = &quot;src/main/resources/XXLChess/w-queen.png&quot;;</span>
+<span class="fc" id="L85">    private static String blackQueenFileStr = &quot;src/main/resources/XXLChess/b-queen.png&quot;;</span>
+<span class="fc" id="L86">    private static String whiteKingFileStr = &quot;src/main/resources/XXLChess/w-king.png&quot;;</span>
+<span class="fc" id="L87">    private static String blackKingFileStr = &quot;src/main/resources/XXLChess/b-king.png&quot;;</span>
+<span class="fc" id="L88">    private static String whitePawnFileStr = &quot;src/main/resources/XXLChess/w-pawn.png&quot;;</span>
+<span class="fc" id="L89">    private static String blackPawnFileStr = &quot;src/main/resources/XXLChess/b-pawn.png&quot;;</span>
+<span class="fc" id="L90">    private static String whiteArchbishopFileStr = &quot;src/main/resources/XXLChess/w-archbishop.png&quot;;</span>
+<span class="fc" id="L91">    private static String blackArchbishopFileStr = &quot;src/main/resources/XXLChess/b-archbishop.png&quot;;</span>
+<span class="fc" id="L92">    private static String whiteCamelFileStr = &quot;src/main/resources/XXLChess/w-camel.png&quot;;</span>
+<span class="fc" id="L93">    private static String blackCamelFileStr = &quot;src/main/resources/XXLChess/b-camel.png&quot;;</span>
+<span class="fc" id="L94">    private static String whiteGeneralFileStr = &quot;src/main/resources/XXLChess/w-knight-king.png&quot;;</span>
+<span class="fc" id="L95">    private static String blackGeneralFileStr = &quot;src/main/resources/XXLChess/b-knight-king.png&quot;;</span>
+<span class="fc" id="L96">    private static String whiteAmazonFileStr = &quot;src/main/resources/XXLChess/w-amazon.png&quot;;</span>
+<span class="fc" id="L97">    private static String blackAmazonFileStr = &quot;src/main/resources/XXLChess/b-amazon.png&quot;;</span>
+<span class="fc" id="L98">    private static String whiteChancellorFileStr = &quot;src/main/resources/XXLChess/w-chancellor.png&quot;;</span>
+<span class="fc" id="L99">    private static String blackChancellorFileStr = &quot;src/main/resources/XXLChess/b-chancellor.png&quot;;</span>
+
+<span class="fc" id="L101">    public App() {</span>
+<span class="fc" id="L102">      this.configPath = &quot;config.json&quot;;</span>
+<span class="fc" id="L103">      this.conf = loadJSONObject(new File(this.configPath));</span>
+<span class="fc" id="L104">      this.time_controls = this.conf.getJSONObject(&quot;time_controls&quot;);</span>
+<span class="fc" id="L105">      this.player = this.time_controls.getJSONObject(&quot;player&quot;);</span>
+<span class="fc" id="L106">      this.cpu = this.time_controls.getJSONObject(&quot;cpu&quot;);</span>
+
+<span class="fc" id="L108">      this.player_colour = this.conf.getString(&quot;player_colour&quot;);</span>
+<span class="fc" id="L109">      this.piece_movement_speed = this.conf.getDouble(&quot;piece_movement_speed&quot;);</span>
+<span class="fc" id="L110">      this.max_movement_time = this.conf.getInt(&quot;max_movement_time&quot;);</span>
+
+<span class="fc" id="L112">      this.playerSeconds = this.player.getInt(&quot;seconds&quot;);</span>
+<span class="fc" id="L113">      this.cpuSeconds = this.cpu.getInt(&quot;seconds&quot;);</span>
+
+<span class="fc" id="L115">      this.playerIncrements = this.player.getInt(&quot;increment&quot;);</span>
+<span class="fc" id="L116">      this.cpuIncrements = this.cpu.getInt(&quot;increment&quot;);</span>
+
+
+
+<span class="fc" id="L120">      this.whitePieces = new ArrayList&lt;Piece&gt;();</span>
+<span class="fc" id="L121">      this.blackPieces = new ArrayList&lt;Piece&gt;();</span>
+
+<span class="fc" id="L123">      this.greenTile = new ArrayList&lt;Tile&gt;();</span>
+<span class="fc" id="L124">      this.blueTile = new ArrayList&lt;Tile&gt;();</span>
+<span class="fc" id="L125">      this.lightredTile = new ArrayList&lt;Tile&gt;();</span>
+<span class="fc" id="L126">      this.darkredTile = new ArrayList&lt;Tile&gt;();</span>
+<span class="fc" id="L127">      this.yellowTile = new ArrayList&lt;Tile&gt;();</span>
+
+
+<span class="fc" id="L130">  }</span>
+
+    /**
+     * Initialise the setting of the window size.
+    */
+    public void settings() {
+<span class="fc" id="L136">        size(WIDTH, HEIGHT);</span>
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * Load all resources such as images. Initialise the elements such as the player, enemies and map elements.
+    */
+    public void setup() {
+<span class="fc" id="L143">      frameRate(FPS);</span>
+  
+<span class="fc" id="L145">      String layout = &quot;level1.txt&quot;;</span>
+<span class="fc" id="L146">      textSize(20);</span>
+  
+      // Load images during setup
+      try {
+<span class="fc" id="L150">        Scanner sc = new Scanner(new File(layout));</span>
+<span class="fc" id="L151">        int y = 0;</span>
+<span class="fc" id="L152">        board = new Board();</span>
+<span class="fc" id="L153">        playerClock = new Clock(this.playerSeconds, this);</span>
+<span class="fc" id="L154">        cpuClock = new Clock(this.cpuSeconds, this);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        while (sc.hasNextLine()) {</span>
+<span class="fc" id="L156">          String line = sc.nextLine();</span>
+  
+<span class="fc bfc" id="L158" title="All 2 branches covered.">          for (int x = 0; x &lt; line.length(); x++) {</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">            if (line.charAt(x) == &quot; &quot;.charAt(0)) {</span>
+              //checks for empty spaces
+            }
+<span class="fc bfc" id="L162" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;R&quot;.charAt(0)) {</span>
+              // Black Rook
+<span class="fc" id="L164">              Rook blackRook = new Rook(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L165">              blackRook.setSprite(this.loadImage(blackRookFileStr));</span>
+<span class="fc" id="L166">              this.blackPieces.add(blackRook);</span>
+<span class="fc" id="L167">              board.setChessPiece(x, y, blackRook);</span>
+<span class="fc" id="L168">            }</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;r&quot;.charAt(0)) {</span>
+              // White Rook
+<span class="fc" id="L171">              Rook whiteRook = new Rook(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L172">              whiteRook.setSprite(this.loadImage(whiteRookFileStr));</span>
+<span class="fc" id="L173">              this.whitePieces.add(whiteRook);</span>
+<span class="fc" id="L174">              board.setChessPiece(x, y, whiteRook);</span>
+<span class="fc" id="L175">            }</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;P&quot;.charAt(0)) {</span>
+              // Black Pawn
+<span class="fc" id="L178">              Pawn blackPawn = new Pawn(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L179">              blackPawn.setSprite(this.loadImage(blackPawnFileStr));</span>
+<span class="fc" id="L180">              this.blackPieces.add(blackPawn);</span>
+<span class="fc" id="L181">              board.setChessPiece(x, y, blackPawn);</span>
+<span class="fc" id="L182">            }</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;p&quot;.charAt(0)) {</span>
+              // White Pawn
+<span class="fc" id="L185">              Pawn whitePawn = new Pawn(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L186">              whitePawn.setSprite(this.loadImage(whitePawnFileStr));</span>
+<span class="fc" id="L187">              this.whitePieces.add(whitePawn);</span>
+<span class="fc" id="L188">              board.setChessPiece(x, y, whitePawn);</span>
+<span class="fc" id="L189">            }</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;N&quot;.charAt(0)) {</span>
+              // Black Knight
+<span class="fc" id="L192">              Knight blackKnight = new Knight(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L193">              blackKnight.setSprite(this.loadImage(blackKnightFileStr));</span>
+<span class="fc" id="L194">              this.blackPieces.add(blackKnight);</span>
+<span class="fc" id="L195">              board.setChessPiece(x, y, blackKnight);</span>
+<span class="fc" id="L196">            }</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;n&quot;.charAt(0)) {</span>
+              // White Knight
+<span class="fc" id="L199">              Knight whiteKnight = new Knight(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L200">              whiteKnight.setSprite(this.loadImage(whiteKnightFileStr));</span>
+<span class="fc" id="L201">              this.whitePieces.add(whiteKnight);</span>
+<span class="fc" id="L202">              board.setChessPiece(x, y, whiteKnight);</span>
+<span class="fc" id="L203">            }</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;B&quot;.charAt(0)) {</span>
+              // Black Bishop
+<span class="fc" id="L206">              Bishop blackBishop = new Bishop(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L207">              blackBishop.setSprite(this.loadImage(blackBishopFileStr));</span>
+<span class="fc" id="L208">              this.blackPieces.add(blackBishop);</span>
+<span class="fc" id="L209">              board.setChessPiece(x, y, blackBishop);</span>
+<span class="fc" id="L210">            }</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;b&quot;.charAt(0)) {</span>
+              // White Bishop
+<span class="fc" id="L213">              Bishop whiteBishop = new Bishop(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L214">              whiteBishop.setSprite(this.loadImage(whiteBishopFileStr));</span>
+<span class="fc" id="L215">              this.whitePieces.add(whiteBishop);</span>
+<span class="fc" id="L216">              board.setChessPiece(x, y, whiteBishop);</span>
+<span class="fc" id="L217">            }</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;H&quot;.charAt(0)) {</span>
+              // Black Archbishop
+<span class="fc" id="L220">              Archbishop blackArchbishop = new Archbishop(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L221">              blackArchbishop.setSprite(this.loadImage(blackArchbishopFileStr));</span>
+<span class="fc" id="L222">              this.blackPieces.add(blackArchbishop);</span>
+<span class="fc" id="L223">              board.setChessPiece(x, y, blackArchbishop);</span>
+<span class="fc" id="L224">            }</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;h&quot;.charAt(0)) {</span>
+              // White Archbishop
+<span class="fc" id="L227">              Archbishop whiteArchbishop = new Archbishop(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L228">              whiteArchbishop.setSprite(this.loadImage(whiteArchbishopFileStr));</span>
+<span class="fc" id="L229">              this.whitePieces.add(whiteArchbishop);</span>
+<span class="fc" id="L230">              board.setChessPiece(x, y, whiteArchbishop);</span>
+<span class="fc" id="L231">            }</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;C&quot;.charAt(0)) {</span>
+              // Black Camel
+<span class="fc" id="L234">              Camel blackCamel = new Camel(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L235">              blackCamel.setSprite(this.loadImage(blackCamelFileStr));</span>
+<span class="fc" id="L236">              this.blackPieces.add(blackCamel);</span>
+<span class="fc" id="L237">              board.setChessPiece(x, y, blackCamel);</span>
+<span class="fc" id="L238">            }</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;c&quot;.charAt(0)) {</span>
+              // White Camel
+<span class="fc" id="L241">              Camel whiteCamel = new Camel(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L242">              whiteCamel.setSprite(this.loadImage(whiteCamelFileStr));</span>
+<span class="fc" id="L243">              this.whitePieces.add(whiteCamel);</span>
+<span class="fc" id="L244">              board.setChessPiece(x, y, whiteCamel);</span>
+<span class="fc" id="L245">            }</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;G&quot;.charAt(0)) {</span>
+              // Black General
+<span class="fc" id="L248">              General blackGeneral = new General(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L249">              blackGeneral.setSprite(this.loadImage(blackGeneralFileStr));</span>
+<span class="fc" id="L250">              this.blackPieces.add(blackGeneral);</span>
+<span class="fc" id="L251">              board.setChessPiece(x, y, blackGeneral);</span>
+<span class="fc" id="L252">            }</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;g&quot;.charAt(0)) {</span>
+              // White General
+<span class="fc" id="L255">              General whiteGeneral = new General(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L256">              whiteGeneral.setSprite(this.loadImage(whiteGeneralFileStr));</span>
+<span class="fc" id="L257">              this.whitePieces.add(whiteGeneral);</span>
+<span class="fc" id="L258">              board.setChessPiece(x, y, whiteGeneral);</span>
+<span class="fc" id="L259">            }</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;A&quot;.charAt(0)) {</span>
+              // Black Amazon
+<span class="fc" id="L262">              Amazon blackAmazon = new Amazon(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L263">              blackAmazon.setSprite(this.loadImage(blackAmazonFileStr));</span>
+<span class="fc" id="L264">              this.blackPieces.add(blackAmazon);</span>
+<span class="fc" id="L265">              board.setChessPiece(x, y, blackAmazon);</span>
+<span class="fc" id="L266">            }</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;a&quot;.charAt(0)) {</span>
+              // White Amazon
+<span class="fc" id="L269">              Amazon whiteAmazon = new Amazon(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L270">              whiteAmazon.setSprite(this.loadImage(whiteAmazonFileStr));</span>
+<span class="fc" id="L271">              this.whitePieces.add(whiteAmazon);</span>
+<span class="fc" id="L272">              board.setChessPiece(x, y, whiteAmazon);</span>
+<span class="fc" id="L273">            }</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;K&quot;.charAt(0)) {</span>
+              // Black King
+<span class="fc" id="L276">              King blackKing = new King(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L277">              blackKing.setSprite(this.loadImage(blackKingFileStr));</span>
+<span class="fc" id="L278">              this.blackPieces.add(blackKing);</span>
+<span class="fc" id="L279">              board.setChessPiece(x, y, blackKing);</span>
+<span class="fc" id="L280">            }</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;k&quot;.charAt(0)) {</span>
+              // White King
+<span class="fc" id="L283">              King whiteKing = new King(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L284">              whiteKing.setSprite(this.loadImage(whiteKingFileStr));</span>
+<span class="fc" id="L285">              this.whitePieces.add(whiteKing);</span>
+<span class="fc" id="L286">              board.setChessPiece(x, y, whiteKing);</span>
+<span class="fc" id="L287">            }</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">            else if (line.charAt(x) == &quot;E&quot;.charAt(0)) {</span>
+              // Black Chancellor
+<span class="fc" id="L290">              Chancellor blackChancellor = new Chancellor(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="fc" id="L291">              blackChancellor.setSprite(this.loadImage(blackChancellorFileStr));</span>
+<span class="fc" id="L292">              this.blackPieces.add(blackChancellor);</span>
+<span class="fc" id="L293">              board.setChessPiece(x, y, blackChancellor);</span>
+<span class="fc" id="L294">            }</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">            else if (line.charAt(x) == &quot;e&quot;.charAt(0)) {</span>
+              // White Chancellor
+<span class="fc" id="L297">              Chancellor whiteChancellor = new Chancellor(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="fc" id="L298">              whiteChancellor.setSprite(this.loadImage(whiteChancellorFileStr));</span>
+<span class="fc" id="L299">              this.whitePieces.add(whiteChancellor);</span>
+<span class="fc" id="L300">              board.setChessPiece(x, y, whiteChancellor);</span>
+<span class="fc" id="L301">            }</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">            else if (line.charAt(x) == &quot;Q&quot;.charAt(0)) {</span>
+              // Black Queen
+<span class="nc" id="L304">              Queen blackQueen = new Queen(x * CELLSIZE, y * CELLSIZE, false);</span>
+<span class="nc" id="L305">              blackQueen.setSprite(this.loadImage(blackQueenFileStr));</span>
+<span class="nc" id="L306">              this.blackPieces.add(blackQueen);</span>
+<span class="nc" id="L307">              board.setChessPiece(x, y, blackQueen);</span>
+<span class="nc" id="L308">            }</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">            else if (line.charAt(x) == &quot;q&quot;.charAt(0)) {</span>
+              // White Queen
+<span class="nc" id="L311">              Queen whiteQueen = new Queen(x * CELLSIZE, y * CELLSIZE, true);</span>
+<span class="nc" id="L312">              whiteQueen.setSprite(this.loadImage(whiteQueenFileStr));</span>
+<span class="nc" id="L313">              this.whitePieces.add(whiteQueen);</span>
+<span class="nc" id="L314">              board.setChessPiece(x, y, whiteQueen);</span>
+            }
+          }
+<span class="fc" id="L317">          y++;</span>
+<span class="fc" id="L318">      }</span>
+<span class="fc" id="L319">      sc.close();</span>
+<span class="fc" id="L320">      board.setChessBoard();</span>
+<span class="fc" id="L321">      clockTurn(false);</span>
+<span class="nc" id="L322">  } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L323">      System.out.println(&quot;Could not find layout file.&quot;);</span>
+<span class="nc" id="L324">      System.exit(0);</span>
+<span class="fc" id="L325">  }</span>
+      
+<span class="fc" id="L327">  }</span>
+
+    /**
+     * Receive key pressed signal from the keyboard.
+    */
+    public void keyPressed(){
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">      if (this.keyCode == 69) {</span>
+<span class="nc" id="L334">        textSize(10);</span>
+<span class="nc" id="L335">        this.text(&quot;You resigned&quot;, 680, 200);</span>
+<span class="nc" id="L336">        this.textSize(1);</span>
+      }
+
+<span class="fc" id="L339">    }</span>
+    
+    /**
+     * Receive key released signal from the keyboard.
+    */
+    public void keyReleased(){
+
+<span class="nc" id="L346">    }</span>
+
+  @Override
+  public void mouseClicked(MouseEvent e) {
+<span class="nc" id="L350">      int mouseX = e.getX();</span>
+<span class="nc" id="L351">      int mouseY = e.getY();</span>
+  
+<span class="nc" id="L353">      int clickedTileX = (int) Math.round(mouseX / CELLSIZE);</span>
+<span class="nc" id="L354">      int clickedTileY = (int) Math.round(mouseY / CELLSIZE);</span>
+
+<span class="nc" id="L356">      resetGridColor();</span>
+  
+<span class="nc" id="L358">      Piece[][] chessboard = board.getChessboard();</span>
+<span class="nc" id="L359">      currentChosenTile = chessboard[clickedTileY][clickedTileX];</span>
+
+<span class="nc" id="L361">      int kingX = (BoardUtils.getKingCoords(this.whitePieces, currentPlayer)[0] / CELLSIZE);</span>
+<span class="nc" id="L362">      int kingY = (BoardUtils.getKingCoords(this.whitePieces, currentPlayer)[1] / CELLSIZE);</span>
+
+
+        //Edge Case not to pick other player's colour
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        if(currentChosenTile != null) {</span>
+<span class="nc bnc" id="L367" title="All 4 branches missed.">          if (currentChosenTile.getPieceColor() != currentPlayer &amp;&amp; lastChosenPiece == null) {</span>
+<span class="nc" id="L368">            currentChosenTile = null;</span>
+<span class="nc" id="L369">            lastChosenPiece = null;</span>
+<span class="nc" id="L370">            return;</span>
+          }
+        }
+
+        // Case 1: Both lastChosenPiece and currentChosenTile are null
+<span class="nc bnc" id="L375" title="All 4 branches missed.">        if(currentChosenTile == null &amp;&amp; lastChosenPiece == null) {</span>
+<span class="nc" id="L376">          return;</span>
+        }
+
+        
+<span class="nc bnc" id="L380" title="All 4 branches missed.">        if (currentChosenTile != null &amp;&amp; lastChosenPiece == null) {</span>
+<span class="nc" id="L381">          caseTwo();</span>
+<span class="nc" id="L382">          return;</span>
+        }
+
+        // Case 3: currentChosenTile is null and lastChosenPiece is not (In this case, a piece movement to an empty square)
+<span class="nc bnc" id="L386" title="All 4 branches missed.">        if (currentChosenTile == null &amp;&amp; lastChosenPiece != null) {</span>
+<span class="nc" id="L387">          caseThree(clickedTileX, clickedTileY, kingX, kingY);</span>
+        }
+
+
+      // Case 4: Both currentChosenTile and lastChosenPiece are not null (In this case, a piece capture)
+<span class="nc bnc" id="L392" title="All 4 branches missed.">      if (currentChosenTile != null &amp;&amp; lastChosenPiece != null) {</span>
+<span class="nc" id="L393">        caseFour(clickedTileX, clickedTileY, kingX, kingY);</span>
+      }
+<span class="nc" id="L395">    }</span>
+
+  
+    /**
+     * Draw all elements in the game by current frame. 
+    */
+    public void draw() {
+
+<span class="fc" id="L403">      initBoard();</span>
+<span class="fc" id="L404">      drawlastTiles();</span>
+<span class="fc" id="L405">      drawTiles();</span>
+<span class="fc" id="L406">      drawPieces();</span>
+
+<span class="fc" id="L408">      playerClock.display(680, 600);</span>
+<span class="fc" id="L409">      cpuClock.display(680, 40);</span>
+
+<span class="fc" id="L411">      playerClock.update();</span>
+<span class="fc" id="L412">      cpuClock.update();</span>
+
+<span class="fc" id="L414">      keyPressed();</span>
+
+<span class="fc" id="L416">    }</span>
+
+	
+	// Add any additional methods or attributes you want. Please put classes in different files.
+
+  public void initBoard() {
+    // draw the cells of the chessboard
+<span class="fc bfc" id="L423" title="All 2 branches covered.">    for (int i = 0; i &lt; 14; i++) {</span>
+<span class="fc bfc" id="L424" title="All 2 branches covered.">      for (int j = 0; j &lt; 14; j++) {</span>
+        // determine the color of the cell based on its position
+<span class="fc bfc" id="L426" title="All 2 branches covered.">        if ((i + j) % 2 == 0) {</span>
+<span class="fc" id="L427">          fill(	244, 217, 176); // light color</span>
+        } else {
+<span class="fc" id="L429">          fill(	189, 134, 93); // dark color</span>
+        }
+        // draw the cell
+<span class="fc" id="L432">        noStroke();</span>
+<span class="fc" id="L433">        rect(j * CELLSIZE + 1, i * CELLSIZE + 1, CELLSIZE, CELLSIZE);</span>
+      }
+    }
+<span class="fc" id="L436">  }</span>
+
+  public void initTiles(int[][] coords) {
+<span class="nc bnc" id="L439" title="All 2 branches missed.">      for (int i = 0; i &lt; coords.length; i++) {</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">          for (int j = 0; j &lt; coords[i].length; j++) {</span>
+<span class="nc" id="L441">              int x = coords[i][j];</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">              if (x == 1) {</span>
+<span class="nc" id="L443">                  Tile blueTile = new Tile(j * CELLSIZE + 1, i * CELLSIZE + 1, &quot;blue&quot;);</span>
+<span class="nc" id="L444">                  this.blueTile.add(blueTile);</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">              } else if (x == 2) {</span>
+<span class="nc" id="L446">                  Tile lightredTile = new Tile(j * CELLSIZE + 1, i * CELLSIZE + 1, &quot;light red&quot;);</span>
+<span class="nc" id="L447">                  this.lightredTile.add(lightredTile);</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">              } else if (x == 3) {</span>
+<span class="nc" id="L449">                  Tile greenTile = new Tile(j * CELLSIZE + 1, i * CELLSIZE + 1, &quot;green&quot;);</span>
+<span class="nc" id="L450">                  this.greenTile.add(greenTile);</span>
+              }
+          }
+      }
+<span class="nc" id="L454">  }</span>
+
+  public void initlastTiles(int x1, int y1, int x2, int y2) {
+<span class="nc" id="L457">    Tile yellowOne = new Tile(x1 + 1, y1 + 1, &quot;yellow&quot;);</span>
+<span class="nc" id="L458">    Tile yellowTwo = new Tile(x2 * CELLSIZE + 1, y2  * CELLSIZE + 1, &quot;yellow&quot;);</span>
+<span class="nc" id="L459">    this.yellowTile.add(yellowOne);</span>
+<span class="nc" id="L460">    this.yellowTile.add(yellowTwo);</span>
+<span class="nc" id="L461">  }</span>
+
+  public void drawTiles() {
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">    for (Tile greenTile : this.greenTile) {</span>
+<span class="nc" id="L465">      greenTile.draw(this);</span>
+<span class="nc" id="L466">    }</span>
+<span class="pc bpc" id="L467" title="1 of 2 branches missed.">    for (Tile blueTile : this.blueTile) {</span>
+<span class="nc" id="L468">      blueTile.draw(this);</span>
+<span class="nc" id="L469">    }</span>
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">    for (Tile lightredTile : this.lightredTile) {</span>
+<span class="nc" id="L471">      lightredTile.draw(this);</span>
+<span class="nc" id="L472">    }</span>
+<span class="fc" id="L473">  }</span>
+
+  public void drawlastTiles() {
+<span class="pc bpc" id="L476" title="1 of 2 branches missed.">    for(Tile yellowTile : this.yellowTile) {</span>
+<span class="nc" id="L477">      yellowTile.draw(this);</span>
+<span class="nc" id="L478">    }</span>
+<span class="fc" id="L479">  }</span>
+
+  public void drawPieces() {
+      //Draws the Tiles
+<span class="fc bfc" id="L483" title="All 2 branches covered.">      for (Piece blackPieces : this.blackPieces) {</span>
+<span class="fc" id="L484">        blackPieces.draw(this);</span>
+<span class="fc" id="L485">      }</span>
+<span class="fc bfc" id="L486" title="All 2 branches covered.">      for (Piece whitePieces : this.whitePieces) {</span>
+<span class="fc" id="L487">        whitePieces.draw(this);</span>
+<span class="fc" id="L488">      }</span>
+<span class="fc" id="L489">  }</span>
+
+  public void removePieces(boolean color, Piece piece) {
+<span class="nc bnc" id="L492" title="All 2 branches missed.">    if (color == true) {</span>
+<span class="nc" id="L493">      this.whitePieces.remove(piece);</span>
+    }
+<span class="nc bnc" id="L495" title="All 2 branches missed.">    else if (color == false) {</span>
+<span class="nc" id="L496">      this.blackPieces.remove(piece);</span>
+    }
+<span class="nc" id="L498">  }</span>
+
+  public void resetGridColor() {
+<span class="fc" id="L501">    this.greenTile.clear();</span>
+<span class="fc" id="L502">    this.blueTile.clear();</span>
+<span class="fc" id="L503">    this.lightredTile.clear();</span>
+<span class="fc" id="L504">  }</span>
+
+  public void makeRandomMove(ArrayList&lt;Piece&gt; pieces) {
+    // Get a random piece from the pieces ArrayList
+<span class="nc" id="L508">    Random random = new Random();</span>
+
+    // Get current board
+<span class="nc" id="L511">    Piece[][] chessboard = board.getChessboard();</span>
+
+<span class="nc bnc" id="L513" title="All 2 branches missed.">    int kingX = (BoardUtils.getKingCoords(this.blackPieces, !currentPlayer)[0] / CELLSIZE);</span>
+<span class="nc bnc" id="L514" title="All 2 branches missed.">    int kingY = (BoardUtils.getKingCoords(this.blackPieces, !currentPlayer)[1] / CELLSIZE);</span>
+
+<span class="nc" id="L516">    inCheck = BoardUtils.checkforCheck(this.whitePieces, chessboard, kingX, kingY);</span>
+    // inCheckMate = BoardUtils.checkforCheckMate(this.whitePieces, chessboard, kingX, kingY);
+    
+
+    while (true) {
+<span class="nc" id="L521">        int randomPieceIndex = random.nextInt(pieces.size());</span>
+<span class="nc" id="L522">        Piece selectedPiece = pieces.get(randomPieceIndex);</span>
+
+        // Resets the parameters after Player has chosen
+<span class="nc" id="L525">        cpuClock.start();</span>
+<span class="nc" id="L526">        this.yellowTile.clear();</span>
+
+        // Get the valid moves for the selected piece
+<span class="nc" id="L529">        int[][] validMoves = selectedPiece.getMove(chessboard);</span>
+
+<span class="nc bnc" id="L531" title="All 2 branches missed.">        if (inCheck) {</span>
+          // Selected Piece in this case is the king
+<span class="nc" id="L533">          selectedPiece = chessboard[kingY][kingX];</span>
+<span class="nc" id="L534">          int[][] kingCoords = selectedPiece.getMove(chessboard);</span>
+<span class="nc" id="L535">          ArrayList&lt;int[]&gt; checkTiles = BoardUtils.getcheckTiles(kingCoords);</span>
+<span class="nc" id="L536">          validMoves = BoardUtils.getCheckKingMovement(this.whitePieces, checkTiles, board, kingX, kingY);</span>
+<span class="nc" id="L537">          System.out.println(Arrays.deepToString(validMoves));</span>
+        }
+
+        //Find the indices of all the legal moves (1s and 2s) in the 'validMoves' array
+<span class="nc" id="L541">        ArrayList&lt;int[]&gt; legalMoveIndices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">        for (int i = 0; i &lt; validMoves.length; i++) {</span>
+<span class="nc bnc" id="L543" title="All 2 branches missed.">            for (int j = 0; j &lt; validMoves[i].length; j++) {</span>
+<span class="nc bnc" id="L544" title="All 4 branches missed.">                if (validMoves[i][j] == 1 || validMoves[i][j] == 2) {</span>
+<span class="nc" id="L545">                  int[] coordinates = {i , j};</span>
+<span class="nc" id="L546">                  legalMoveIndices.add(coordinates);</span>
+                }
+            }
+        }
+
+<span class="nc bnc" id="L551" title="All 2 branches missed.">        if(!legalMoveIndices.isEmpty()) {</span>
+<span class="nc" id="L552">            int randomMoveIndex = random.nextInt(legalMoveIndices.size());</span>
+<span class="nc" id="L553">            int[] selectedMoveIndex = legalMoveIndices.get(randomMoveIndex);</span>
+
+<span class="nc" id="L555">            int moveRow = selectedMoveIndex[0];</span>
+<span class="nc" id="L556">            int moveCol = selectedMoveIndex[1];</span>
+
+            // System.out.println(Arrays.deepToString(validMoves));
+
+<span class="nc bnc" id="L560" title="All 2 branches missed.">            if(validMoves[moveRow][moveCol] == 2) {</span>
+<span class="nc" id="L561">              Piece eliminatedPiece = chessboard[moveRow][moveCol];</span>
+<span class="nc" id="L562">              removePieces(eliminatedPiece.getPieceColor(), eliminatedPiece);</span>
+            }
+
+<span class="nc" id="L565">            initlastTiles(selectedPiece.getX(), selectedPiece.getY(), moveCol, moveRow);</span>
+
+<span class="nc" id="L567">            board.movePiece(selectedPiece.getX() / CELLSIZE, selectedPiece.getY() / CELLSIZE, moveCol, moveRow);</span>
+<span class="nc" id="L568">            selectedPiece.movePiece(moveCol, moveRow);</span>
+
+<span class="nc" id="L570">            clockTurn(true);</span>
+<span class="nc" id="L571">            break;</span>
+
+        } 
+        else {
+<span class="nc" id="L575">            pieces.remove(randomPieceIndex);</span>
+        }
+<span class="nc" id="L577">      }</span>
+<span class="nc" id="L578">    }</span>
+
+    // Case 2: Selecting the piece for the first time
+    public void caseTwo() {
+<span class="fc" id="L582">      Piece[][] chessboard = board.getChessboard();</span>
+<span class="fc" id="L583">      resetGridColor();</span>
+<span class="nc" id="L584">          int[][] coords = currentChosenTile.getMove(chessboard);</span>
+<span class="nc" id="L585">          initTiles(coords);</span>
+<span class="nc" id="L586">          lastChosenPiece = currentChosenTile;</span>
+<span class="nc" id="L587">    }</span>
+
+    // Case 3: Moving the piece to an empty spot
+
+    public void caseThree(int clickedTileX, int clickedTileY, int kingX, int kingY) {
+<span class="nc" id="L592">      Piece[][] chessboard = board.getChessboard();</span>
+<span class="nc bnc" id="L593" title="All 2 branches missed.">      if (lastChosenPiece.getMove(chessboard) != null) { // Add this null check</span>
+<span class="nc" id="L594">        int[][] coords = lastChosenPiece.getMove(chessboard);</span>
+<span class="nc" id="L595">        initTiles(coords);</span>
+        // Moves the piece legally
+<span class="nc bnc" id="L597" title="All 2 branches missed.">        if (coords[clickedTileY][clickedTileX] == 1) {</span>
+<span class="nc" id="L598">            resetGridColor();</span>
+<span class="nc" id="L599">            this.yellowTile.clear();</span>
+<span class="nc" id="L600">            initlastTiles(lastChosenPiece.getX(), lastChosenPiece.getY(), clickedTileX, clickedTileY);</span>
+<span class="nc" id="L601">            board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);</span>
+<span class="nc" id="L602">            lastChosenPiece.movePiece(clickedTileX, clickedTileY);</span>
+<span class="nc" id="L603">            makeRandomMove(blackPieces);</span>
+<span class="nc" id="L604">            lastChosenPiece = null;</span>
+<span class="nc" id="L605">            clockTurn(false);</span>
+<span class="nc" id="L606">            inCheck = BoardUtils.checkforCheck(this.blackPieces, chessboard, kingX, kingY);</span>
+            // inCheckMate = BoardUtils.checkforCheckMate(this.blackPieces, chessboard, kingX, kingY);
+        } 
+        else {
+<span class="nc" id="L610">            resetGridColor();</span>
+        }
+      } 
+<span class="nc" id="L613">      return;</span>
+    }
+
+    // Case 4: Capturing a piece
+
+    public void caseFour(int clickedTileX, int clickedTileY, int kingX, int kingY) {
+<span class="nc" id="L619">      Piece[][] chessboard = board.getChessboard();</span>
+<span class="nc" id="L620">      int[][] coords = currentChosenTile.getMove(chessboard);</span>
+<span class="nc" id="L621">        initTiles(coords);</span>
+<span class="nc bnc" id="L622" title="All 2 branches missed.">        if (currentChosenTile.getPieceColor() != lastChosenPiece.getPieceColor()) {</span>
+<span class="nc" id="L623">          resetGridColor();</span>
+<span class="nc" id="L624">          this.yellowTile.clear();</span>
+<span class="nc" id="L625">          initlastTiles(lastChosenPiece.getX(), lastChosenPiece.getY(), clickedTileX, clickedTileY);</span>
+<span class="nc" id="L626">          board.movePiece(lastChosenPiece.getX() / CELLSIZE, lastChosenPiece.getY() / CELLSIZE, clickedTileX, clickedTileY);</span>
+<span class="nc" id="L627">          removePieces(currentChosenTile.getPieceColor(), currentChosenTile);</span>
+<span class="nc" id="L628">          lastChosenPiece.movePiece(clickedTileX, clickedTileY);</span>
+<span class="nc" id="L629">          lastChosenPiece = null;</span>
+<span class="nc" id="L630">          makeRandomMove(blackPieces);</span>
+<span class="nc" id="L631">          clockTurn(false);</span>
+<span class="nc" id="L632">          inCheck = BoardUtils.checkforCheck(this.blackPieces, chessboard, kingX, kingY);</span>
+          // inCheckMate = BoardUtils.checkforCheckMate(this.blackPieces, chessboard, kingX, kingY);
+        }
+<span class="nc" id="L635">    }</span>
+
+
+    // If turn is true, then it's computer's turn, else it's player's turn
+    public void clockTurn(boolean turn) {
+<span class="pc bpc" id="L640" title="1 of 2 branches missed.">      if (turn) {</span>
+<span class="nc" id="L641">        playerClock.stop();</span>
+<span class="nc" id="L642">        cpuClock.increment(this.cpuIncrements, false);</span>
+<span class="nc" id="L643">        playerFirst = false;</span>
+      }
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">      if (!turn) {</span>
+<span class="fc" id="L646">        cpuClock.stop();</span>
+<span class="fc" id="L647">        playerClock.start();</span>
+<span class="fc" id="L648">        playerClock.increment(this.playerIncrements, playerFirst);</span>
+      }
+<span class="fc" id="L650">    }</span>
+
+
+    public static void main(String[] args) {
+<span class="nc" id="L654">        PApplet.main(&quot;XXLChess.App&quot;);</span>
+<span class="nc" id="L655">    }</span>
+
+  }
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

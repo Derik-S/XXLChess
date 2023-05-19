@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class King extends Piece {
     public King(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.KING);
+        super(x, y, isWhite, Type.KING, Double.POSITIVE_INFINITY);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

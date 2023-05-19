@@ -21,6 +21,10 @@ public class Tile {
         this.colour = colour;
     }
 
+    /**
+	 * Draws the tiles according to the colour attribute
+	 * @param app PApplet's class to be able to draw the tile
+	 */
     public void draw(PApplet app) {
         if (this.colour == "green") {
             app.fill(greenFill[0], greenFill[1], greenFill[2]);

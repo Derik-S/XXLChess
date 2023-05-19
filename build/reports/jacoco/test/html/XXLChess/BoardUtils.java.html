@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BoardUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">XXLChess</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">BoardUtils.java</span></div><h1>BoardUtils.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+
+<span class="nc" id="L7">public class BoardUtils {</span>
+<span class="nc" id="L8">    static int boardSize = 14;</span>
+
+	public static boolean isCoord(int x, int y) {
+<span class="nc bnc" id="L11" title="All 8 branches missed.">		return (x &gt;= 0 &amp;&amp; x &lt; boardSize &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; boardSize);</span>
+	}
+
+	/**
+	 * Given the player, this function returns the king's coordinates
+	 * @param board
+	 * @param player
+	 * @return
+	 */
+	public static int[] getKingCoords(ArrayList&lt;Piece&gt; playerPieces, boolean pieceColor) {
+<span class="nc bnc" id="L21" title="All 2 branches missed.">		for (Piece p : playerPieces) {</span>
+<span class="nc bnc" id="L22" title="All 4 branches missed.">			if (p.getType() == Type.KING &amp;&amp; p.getPieceColor() == pieceColor) {</span>
+<span class="nc" id="L23">				return new int[] { p.getX(), p.getY()};</span>
+			}
+<span class="nc" id="L25">		}</span>
+<span class="nc" id="L26">		return null;</span>
+	}
+
+	public static boolean checkforDraw(ArrayList&lt;Piece&gt; playerPieces, ArrayList&lt;Piece&gt; enemyPieces, Board b) {
+<span class="nc" id="L30">		Piece[][] board = b.getChessboard();</span>
+<span class="nc" id="L31">		ArrayList&lt;Piece&gt; allPieces = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L32">		ArrayList&lt;Integer&gt; possibleMoves = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L34">		allPieces.addAll(playerPieces);</span>
+<span class="nc" id="L35">		allPieces.addAll(enemyPieces);</span>
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">		for (Piece p : allPieces) {</span>
+<span class="nc" id="L38">			int[][] coords = p.getMove(board);</span>
+			// Getting all the possible moves of the king's location
+<span class="nc bnc" id="L40" title="All 2 branches missed.">			for (int chessCol = 0; chessCol &lt; 14; chessCol++) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">				for (int chessRow = 0; chessRow &lt; 14; chessRow++) {</span>
+<span class="nc" id="L42">					int currTile = coords[chessCol][chessRow];</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">					if (currTile != 0) {</span>
+<span class="nc" id="L44">						possibleMoves.add(currTile);</span>
+					}
+				}
+			}
+<span class="nc" id="L48">		}</span>
+
+<span class="nc" id="L50">		return possibleMoves.isEmpty();</span>
+		
+	}
+
+	/**
+	 * Method which checks to see if a player is checked
+	 * @param board
+	 * @param kingX
+	 * @param kingY
+	 * @return
+	 */
+	public static boolean checkforCheck(ArrayList&lt;Piece&gt; enemyPieces, Piece[][] board, int kingX, int kingY) {
+		
+		// System.out.println(Arrays.deepToString(board));
+		// Loops through every enemypiece
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		for (Piece p : enemyPieces) {</span>
+<span class="nc" id="L66">			int[][] coords = p.getMove(board);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			if (coords[kingY][kingX] != 0) {</span>
+<span class="nc" id="L68">				return true;</span>
+			}
+<span class="nc" id="L70">		}	</span>
+<span class="nc" id="L71">		return false;</span>
+	}
+
+	/**
+	 * Method that checks for a checkmate, given a player
+	 * 
+	 * @param b     A reference to the board object
+	 * @param id    The player to check
+	 * @param kingX The players KingX
+	 * @param kingY The players KingY
+	 * @return Whether the player is checkmated
+	 */
+	public static boolean checkforCheckMate(ArrayList&lt;Piece&gt; enemyPieces, Board b, int kingX, int kingY) {
+<span class="nc" id="L84">		Piece[][] board = b.getChessboard();</span>
+<span class="nc" id="L85">		Piece kingLocation = board[kingY][kingX];</span>
+<span class="nc" id="L86">		int[][] kingCoords = kingLocation.getMove(board);</span>
+<span class="nc" id="L87">		int kingCounter = 0; // Checks if the king has any movable tiles or not. If it does then it's not checkmate</span>
+
+		// Getting all the possible moves of the king's location
+<span class="nc" id="L90">		ArrayList&lt;int[]&gt; checkTile = getcheckTiles(kingCoords);</span>
+
+		// Case 1: Checking if the king can move.
+
+<span class="nc" id="L94">		int[][] checktilePlaces = getCheckKingMovement(enemyPieces, checkTile, b, kingX, kingY);</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		for (int chessCol = 0; board.length &lt; 14; chessCol++) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">			for (int chessRow = 0; board[chessCol].length &lt; 14; chessRow++) {</span>
+<span class="nc" id="L98">				int currTile = checktilePlaces[chessCol][chessRow];</span>
+<span class="nc bnc" id="L99" title="All 4 branches missed.">				if(currTile == 1 || currTile == 2) {</span>
+<span class="nc" id="L100">					kingCounter = 1;</span>
+				}
+			}
+		}
+
+<span class="nc bnc" id="L105" title="All 2 branches missed.">		return kingCounter == checkTile.size();</span>
+	}
+
+	public static ArrayList&lt;int[]&gt; getcheckTiles(int[][] kingCoords) {
+<span class="nc" id="L109">		ArrayList&lt;int[]&gt; toReturn = new ArrayList&lt;&gt;();</span>
+		
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		for (int chessCol = 0; chessCol &lt; 14; chessCol++) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">			for (int chessRow = 0; chessRow &lt; 14; chessRow++) {</span>
+<span class="nc" id="L113">				int currTile = kingCoords[chessCol][chessRow];</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">				if (currTile != 0) {</span>
+					// Create an array to hold the coordinates and add it to the ArrayList
+<span class="nc" id="L116">					int[] coordinates = { chessCol, chessRow };</span>
+<span class="nc" id="L117">					toReturn.add(coordinates);</span>
+				}
+			}
+		}
+<span class="nc" id="L121">		return toReturn;</span>
+		
+	}
+
+	/**
+	 * Method that checks for any checkPlaces in 0's and 1's. This player method shows where the king can move
+	 * 
+	 * @param enemyPieces     A reference to the board object
+	 * @param checkTile    Grabs all the 
+	 * @param board		Grabs the current state of board
+	 * @return 1's for available moves and 2's for capture moves
+	 */
+	public static int[][] getCheckKingMovement(ArrayList&lt;Piece&gt; enemyPieces, ArrayList&lt;int[]&gt; checkTile, Board b, int kingX, int kingY) {
+<span class="nc" id="L134">		int[][] toReturn = new int[14][14];</span>
+<span class="nc" id="L135">		ArrayList&lt;int[]&gt; kingMoves = new ArrayList&lt;&gt;();</span>
+		
+		// Grabbing the board
+<span class="nc" id="L138">		Piece[][] board = b.getChessboard();</span>
+		
+		// King's moves without the attacking pieces
+<span class="nc" id="L141">		int[][] kingPieceMoves = board[kingY][kingX].getMove(board);</span>
+		
+		// Making a board where the king is removed so that the pinned works
+<span class="nc" id="L144">		Piece[][] pinBoard = new Piece[14][14];</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">		for (int row = 0; row &lt; 14; row++) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">			for (int col = 0; col &lt; 14; col++) {</span>
+<span class="nc" id="L147">				pinBoard[row][col] = board[row][col];</span>
+			}
+		}
+<span class="nc" id="L150">		pinBoard[kingY][kingX] = null;</span>
+
+	
+		// Looping through each enemy piece
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		for (Piece p : enemyPieces) {</span>
+<span class="nc" id="L155">			int[][] coords = p.getMove(pinBoard);</span>
+	
+			// Checks if the current piece move matches with a king placement
+<span class="nc bnc" id="L158" title="All 2 branches missed.">			for (int[] validTile : checkTile) {</span>
+<span class="nc" id="L159">				int x = validTile[0];</span>
+<span class="nc" id="L160">				int y = validTile[1];</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">				if (coords[x][y] == 0 || coords[x][y] == 2) {</span>
+<span class="nc" id="L162">					int[] coordinate = {x, y};</span>
+<span class="nc" id="L163">					kingMoves.add(coordinate);</span>
+				}
+<span class="nc" id="L165">			}</span>
+<span class="nc" id="L166">		}</span>
+
+<span class="nc" id="L168">		System.out.println(kingMoves);</span>
+
+		// Using the king's moves we check if there's any available moves
+<span class="nc bnc" id="L171" title="All 2 branches missed.">		for(int[] kingMove : kingMoves) {</span>
+<span class="nc" id="L172">			int x = kingMove[0];</span>
+<span class="nc" id="L173">			int y = kingMove[1];</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">			if(kingPieceMoves[x][y] == 0) {</span>
+<span class="nc" id="L175">				toReturn[x][y] = 1;</span>
+			}
+<span class="nc bnc" id="L177" title="All 2 branches missed.">			if(kingPieceMoves[x][y] == 2) {</span>
+<span class="nc" id="L178">				toReturn[x][y] = 2;</span>
+			}
+<span class="nc" id="L180">		}</span>
+
+<span class="nc" id="L182">		toReturn[kingY][kingX] = 3;</span>
+
+		// System.out.println(Arrays.deepToString(toReturn));
+
+<span class="nc" id="L186">		return toReturn;</span>
+	}	
+
+	// This player method shows where the player's pieces can move whilst in check
+	public static int[][] getCheckPieceMovement(Piece playerPiece, ArrayList&lt;Piece&gt; enemyPieces, ArrayList&lt;int[]&gt; checkTile, Piece[][] board) {
+<span class="nc" id="L191">		int[][] toReturn = new int[14][14];</span>
+<span class="nc" id="L192">		int[][] coords = playerPiece.getMove(board);</span>
+
+
+<span class="nc bnc" id="L195" title="All 2 branches missed.">		for(int[] validTile : checkTile) {</span>
+<span class="nc" id="L196">			int x = validTile[0];</span>
+<span class="nc" id="L197">			int y = validTile[1];</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">			if (coords[x][y] == 1) {</span>
+<span class="nc" id="L199">				toReturn[x][y] = 1;</span>
+			}
+<span class="nc bnc" id="L201" title="All 2 branches missed.">			if (coords[x][y] == 2) {</span>
+<span class="nc" id="L202">				toReturn[x][y] = 2;</span>
+			}
+<span class="nc" id="L204">		}</span>
+
+<span class="nc" id="L206">		toReturn[playerPiece.getX() / 48][playerPiece.getY() / 48] = 3;</span>
+
+<span class="nc" id="L208">		return toReturn;</span>
+	}
+
+	
+	public static boolean isCastlePossible(Piece[][] board, int x1, int y1, int x2, int y2) {
+<span class="nc bnc" id="L213" title="All 4 branches missed.">		if (board[y1][x1].getisMoved() || board[y2][x2].getisMoved()) {</span>
+<span class="nc" id="L214">			return false;</span>
+		}
+
+<span class="nc bnc" id="L217" title="All 2 branches missed.">		if (x1 &gt; x2) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			for (int i = x1 - 1; i &gt; x2; i--) {</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">				if (board[y1][i] != null) {</span>
+<span class="nc" id="L220">					return false;</span>
+				}
+			}
+		}
+
+		else {
+<span class="nc bnc" id="L226" title="All 2 branches missed.">			for (int i = x1 + 1; i &lt; x2; i++) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">				if (board[y1][i] != null) {</span>
+<span class="nc" id="L228">					return false;</span>
+				}
+			}
+		}
+<span class="nc" id="L232">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

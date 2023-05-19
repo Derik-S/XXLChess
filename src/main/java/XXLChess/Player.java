@@ -3,21 +3,25 @@ package XXLChess;
 import java.util.ArrayList;
 
 public class Player {
-	private ArrayList<Piece> takenPieces; // ArrayList of all the pieces the player took
-	private boolean isWhite;
+	protected ArrayList<Piece> takenPieces; // ArrayList of all the pieces the player took
+	protected boolean isWhite;
 
 	public Player(boolean isWhite) {
 		this.isWhite = isWhite;
-		takenPieces = new ArrayList<Piece>();
-	}
-
-	public void addToPile(Piece p) {
-		takenPieces.add(p);
+		this.takenPieces = new ArrayList<Piece>();
 	}
 
 	/**
-	 * Function which returns player ID
-	 * @return id
+	 * Class method which adds the taken pieces to a pile
+	 * @param p Captured piece
+	 */
+	public void addToPile(Piece p) {
+		this.takenPieces.add(p);
+	}
+
+	/**
+	 * Function which returns player's piece colour
+	 * @return Piece colour
 	 */
 	public boolean getisWhite() {
 		return this.isWhite;

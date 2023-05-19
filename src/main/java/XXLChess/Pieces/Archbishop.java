@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class Archbishop extends Piece {
     public Archbishop(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.ARCHBISHOP);
+        super(x, y, isWhite, Type.ARCHBISHOP, 7.5);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

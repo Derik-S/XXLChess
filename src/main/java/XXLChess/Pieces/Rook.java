@@ -4,7 +4,7 @@ import XXLChess.*;
 
 public class Rook extends Piece {
     public Rook(int x, int y, boolean isWhite) {
-        super(x, y, isWhite, Type.ROOK);
+        super(x, y, isWhite, Type.ROOK, 5.25);
     }
 
     public int[][] getMove(Piece[][] boardStatus) {

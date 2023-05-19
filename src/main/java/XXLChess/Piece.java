@@ -16,7 +16,7 @@ public abstract class Piece {
     protected int speed = 2;
 
 
-    public Piece(int x, int y, boolean isWhite, Type piece) {
+    public Piece(int x, int y, boolean isWhite, Type piece, double value) {
         this.x = x;
         this.y = y;
         this.isWhite = isWhite;
@@ -26,14 +26,14 @@ public abstract class Piece {
     /**
 	 * Abstract function implemented by all subclasses. Returns where the piece can
 	 * move
-	 * @param boardStatus Array containing all the
+	 * @param board Array containing the current state of the board
 	 * @return int[][] Returns the places that the piece can move,
 	 */
 	public abstract int[][] getMove(Piece[][] board);
 
     /**
      * Sets the object's sprite
-     * @param   sprite  The sprite that the object should have.
+     * @param sprite  The sprite that the object should have.
     */
     public void setSprite(PImage sprite) {
         this.sprite = sprite;
@@ -41,7 +41,7 @@ public abstract class Piece {
 
     /**
      * Draws the object onto the screen.
-     * @param   app The PApplet object.
+     * @param app The PApplet object.
     */
     public void draw(PApplet app) {
         this.sprite.resize(48,48);
@@ -50,6 +50,7 @@ public abstract class Piece {
 
     /**
      * Gives and sets the object's x coordinate.
+     * @return Object's x coordinate
     */
     public int getX() {
         return this.x;
@@ -60,7 +61,8 @@ public abstract class Piece {
     }
 
     /**
-     * Gives the object's y coordinate.  
+     * Gives and sets the object's y coordinate.
+     * @return Object's y coordinate
     */
     public int getY() {
         return this.y;
@@ -72,27 +74,33 @@ public abstract class Piece {
 
     /**
      * Gives and sets the object's piece value.
+     * @return Object's piece value
     */
     public double getValue() {
         return this.value;
     }
 
-    public void setValue(double value) {
-        this.value = value;
-    }
-
     /**
      * Gets the piece Type.
+     * @return Object's piece Type
     */
     public Type getType() {
         return piece;
     }
 
+    /**
+     * Gets the piece colour.
+     * @return Object's piece colour
+    */
     public boolean getPieceColor() {
         return isWhite;
     }
 
-    public boolean getMove() {
+    /**
+     * Gets and sets the piece special move.
+     * @return Object if it has moved
+    */
+    public boolean getisMoved() {
         return isMoved;
     }
 
@@ -100,6 +108,11 @@ public abstract class Piece {
         isMoved = a;
     }
 
+    /**
+     * Graphically moves the piece
+     * @param clickedTileX Where to graphically set the x coord
+     * @param clickedTileY Where to graphically set the y coord
+    */
     public void movePiece(int clickedTileX, int clickedTileY) {
         int resultX = (clickedTileX * 48) - this.x;
         int resultY = (clickedTileY * 48) - this.y;

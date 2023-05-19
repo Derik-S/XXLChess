@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pawn.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">XXLChess</a> &gt; <a href="index.source.html" class="el_package">XXLChess.Pieces</a> &gt; <span class="el_source">Pawn.java</span></div><h1>Pawn.java</h1><pre class="source lang-java linenums">package XXLChess.Pieces;
+
+import XXLChess.*;
+
+public class Pawn extends Piece {
+    public Pawn(int x, int y, boolean isWhite) {
+<span class="fc" id="L7">        super(x, y, isWhite, Type.PAWN, 1);</span>
+<span class="fc" id="L8">    }</span>
+
+    public int[][] getMove(Piece[][] boardStatus) {
+<span class="nc" id="L11">		int[][] toReturn = new int[boardStatus.length][boardStatus[0].length];</span>
+<span class="nc" id="L12">		int x = (int) Math.round((super.getX()/ 48));</span>
+<span class="nc" id="L13">		int y = (int) Math.round((super.getY()/ 48));</span>
+<span class="nc" id="L14">		toReturn[y][x] = 3;</span>
+
+<span class="nc bnc" id="L16" title="All 2 branches missed.">		int[] direction = (super.getPieceColor() == false) ? new int[] { 1, 1 } : new int[] { -1, -1 };</span>
+<span class="nc" id="L17">		int[][] pawnMoves = { { 0, direction[0] }, { 0, direction[0] * 2 } };</span>
+<span class="nc" id="L18">		int[][] pawnKills = { { 1, direction[0] }, { -1, direction[0] } };</span>
+
+<span class="nc bnc" id="L20" title="All 2 branches missed.">		for (int[] move : pawnMoves) {</span>
+<span class="nc" id="L21">			int newX = x + move[0];</span>
+<span class="nc" id="L22">			int newY = y + move[1];</span>
+<span class="nc bnc" id="L23" title="All 4 branches missed.">			if (BoardUtils.isCoord(newX, newY) &amp;&amp; boardStatus[newY][newX] == null) {</span>
+<span class="nc" id="L24">				toReturn[newY][newX] = 1;</span>
+			}
+		}
+
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		for (int[] kill : pawnKills) {</span>
+<span class="nc" id="L29">			int newX = x + kill[0];</span>
+<span class="nc" id="L30">			int newY = y + kill[1];</span>
+<span class="nc bnc" id="L31" title="All 6 branches missed.">			if (BoardUtils.isCoord(newX, newY) &amp;&amp; boardStatus[newY][newX] != null &amp;&amp; boardStatus[newY][newX].getPieceColor() != super.getPieceColor()) {</span>
+<span class="nc" id="L32">				toReturn[newY][newX] = 2;</span>
+			}
+		}
+<span class="nc" id="L35">		return toReturn;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">XXLChess</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">Tile.java</span></div><h1>Tile.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+import processing.core.PApplet;
+
+// import java.util.Arrays;
+
+public class Tile {
+    protected int x;
+    protected int y;
+    protected String colour;
+<span class="fc" id="L11">    protected int[] greenFill = { 112, 136, 83}; // Fill</span>
+<span class="fc" id="L12">    protected int[] blueFill = {0, 0, 255};</span>
+<span class="fc" id="L13">    protected int[] redFill = {255, 0, 0};</span>
+<span class="fc" id="L14">    protected int[] yellowFill = {255, 255, 0};</span>
+<span class="fc" id="L15">    protected float alphaFloat = 128; // sets the transparency of the tile</span>
+
+
+<span class="fc" id="L18">    public Tile(int x, int y, String colour) {</span>
+<span class="fc" id="L19">        this.x = x;</span>
+<span class="fc" id="L20">        this.y = y;</span>
+<span class="fc" id="L21">        this.colour = colour;</span>
+<span class="fc" id="L22">    }</span>
+
+    public void draw(PApplet app) {
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        if (this.colour == &quot;green&quot;) {</span>
+<span class="nc" id="L26">            app.fill(greenFill[0], greenFill[1], greenFill[2]);</span>
+<span class="nc" id="L27">            app.noStroke();</span>
+<span class="nc" id="L28">            app.rect(this.x, this.y, 48, 48);</span>
+        }
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        else if (this.colour == &quot;blue&quot;) {</span>
+<span class="nc" id="L31">            app.fill(blueFill[0], blueFill[1], blueFill[2], alphaFloat);</span>
+<span class="nc" id="L32">            app.noStroke();</span>
+<span class="nc" id="L33">            app.rect(this.x, this.y, 48, 48);</span>
+        }
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        else if (this.colour == &quot;light red&quot;) {</span>
+<span class="nc" id="L36">            app.fill(redFill[0], redFill[1], redFill[2], alphaFloat);</span>
+<span class="nc" id="L37">            app.noStroke();</span>
+<span class="nc" id="L38">            app.rect(this.x, this.y, 48, 48);</span>
+        }
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        else if (this.colour == &quot;yellow&quot;) {</span>
+<span class="nc" id="L41">            app.fill(yellowFill[0], yellowFill[1], yellowFill[2], alphaFloat);</span>
+<span class="nc" id="L42">            app.noStroke();</span>
+<span class="nc" id="L43">            app.rect(this.x, this.y, 48, 48);</span>
+        }
+<span class="nc" id="L45">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
